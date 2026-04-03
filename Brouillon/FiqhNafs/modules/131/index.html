@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="لتعارفوا 04 | فقه الأخلاق 03 | سورة الحجرات 02">
+  <meta name="theme-color" content="#6366f1">
+  <title>لتعارفوا 04 | فقه الأخلاق 03 | سورة الحجرات 02 — مجالس فقه النفس</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-color: #FF9800;
+      --secondary-color: #FB8C00;
+      --accent-color: #7FD856;
+      --success-color: #7FD856;
+      --warning-color: #FF9800;
+      --danger-color: #E53935;
+      --bg-dark: #2C2C2C;
+      --bg-light: #F5F5F5;
+      --bg-white: #FFFFFF;
+      --text-dark: #1F1F1F;
+      --text-gray: #666666;
+      --text-light: #FFFFFF;
+      --border-color: #E0E0E0;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Cairo', 'Tajawal', sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      line-height: 1.8;
+      font-size: 16px;
+    }
+
+    .navbar {
+      background: var(--bg-dark);
+      color: var(--text-light);
+      padding: 1rem 0;
+      box-shadow: var(--shadow-md);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 3px solid var(--primary-color);
+    }
+
+    .navbar-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      transition: opacity 0.3s;
+    }
+
+    .nav-links a:hover {
+      opacity: 0.8;
+    }
+
+    .module-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .module-header {
+      background: var(--bg-dark);
+      color: var(--text-light);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 2rem;
+      border-right: 4px solid var(--primary-color);
+    }
+
+    .module-meta {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .module-number {
+      background: var(--primary-color);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+
+    .trilogy-badge {
+      background: var(--accent-color);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+    }
+
+    .module-title {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-light);
+      font-weight: bold;
+    }
+
+    .module-subtitle {
+      color: #CCCCCC;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .module-instructor {
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+
+    .progress-section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 2rem;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: var(--border-color);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+      transition: width 0.3s ease;
+    }
+
+    .progress-text {
+      font-size: 0.9rem;
+      color: var(--text-gray);
+      text-align: center;
+    }
+
+    .section {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 2rem;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: var(--primary-color);
+      border-bottom: 3px solid var(--primary-color);
+      padding-bottom: 0.5rem;
+      font-weight: bold;
+    }
+
+    .objectives-list {
+      list-style: none;
+    }
+
+    .objective-item {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: var(--bg-light);
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+
+    .objective-item:hover {
+      background: #f0f4ff;
+      transform: translateX(-5px);
+    }
+
+    .objective-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      background: var(--primary-color);
+      color: white;
+      border-radius: 50%;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    .concepts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .concept-card {
+      background: linear-gradient(135deg, #F5F5F5, #EEEEEE);
+      padding: 1.5rem;
+      border-radius: 8px;
+      border-right: 3px solid var(--primary-color);
+      transition: all 0.3s;
+    }
+
+    .concept-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .concept-term {
+      color: var(--primary-color);
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .concept-definition {
+      color: var(--text-gray);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .section-content {
+      margin-bottom: 1.5rem;
+    }
+
+    .section-content p {
+      margin-bottom: 1rem;
+      line-height: 1.8;
+      color: var(--text-dark);
+    }
+
+    .examples-box {
+      background: var(--bg-light);
+      padding: 1.5rem;
+      border-radius: 8px;
+      border-right: 3px solid var(--warning-color);
+      margin-top: 1.5rem;
+    }
+
+    .examples-box h4 {
+      color: var(--warning-color);
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+
+    .examples-list {
+      list-style: none;
+      padding-right: 0;
+    }
+
+    .examples-list li {
+      padding: 0.5rem 0;
+      padding-right: 1rem;
+      color: var(--text-gray);
+      border-right: 2px solid var(--warning-color);
+      margin-bottom: 0.5rem;
+    }
+
+    .key-points-list {
+      list-style: none;
+    }
+
+    .key-point {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: linear-gradient(135deg, #fef3c7, #fef08a);
+      border-radius: 8px;
+      border-right: 3px solid var(--warning-color);
+      color: var(--text-dark);
+    }
+
+    .key-point:before {
+      content: "💡";
+      flex-shrink: 0;
+    }
+
+    .applications-list {
+      list-style: none;
+    }
+
+    .application-item {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+      border-radius: 8px;
+      border-right: 3px solid var(--primary-color);
+      color: var(--text-dark);
+    }
+
+    .app-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      background: var(--primary-color);
+      color: white;
+      border-radius: 50%;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    .navigation-section {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 2px solid var(--border-color);
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+      border: none;
+      cursor: pointer;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: var(--accent-color);
+      color: white;
+      font-weight: bold;
+    }
+
+    .btn-primary:hover {
+      background: #6BC34A;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-secondary {
+      background: var(--primary-color);
+      color: white;
+      font-weight: bold;
+    }
+
+    .btn-secondary:hover {
+      background: var(--secondary-color);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--primary-color);
+      border: 2px solid var(--primary-color);
+    }
+
+    .btn-outline:hover {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .btn.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn.disabled:hover {
+      transform: none;
+      box-shadow: none;
+    }
+
+    @media (max-width: 768px) {
+      .module-container {
+        padding: 1rem;
+      }
+
+      .module-title {
+        font-size: 1.5rem;
+      }
+
+      .concepts-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-buttons {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .navbar-content {
+        padding: 0 1rem;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .nav-links {
+        gap: 1rem;
+      }
+    }
+  
+  </style>
+</head>
+<body>
+
+<nav class="navbar" role="navigation" aria-label="التنقل الرئيسي">
+  <div class="navbar-content">
+    <span class="brand">📚 مجالس فقه النفس</span>
+    <div class="nav-links">
+      <a href="../../index.html" aria-label="العودة إلى الرئيسية">الرئيسية</a>
+      <a href="#" aria-label="البحث">البحث</a>
+    </div>
+  </div>
+</nav>
+
+<div class="module-container">
+  <div class="module-header">
+  <div class="module-meta">
+    <span class="module-number">المجلس 131</span>
+    
+  </div>
+  <h1 class="module-title">لتعارفوا 04 | فقه الأخلاق 03 | سورة الحجرات 02</h1>
+  <p class="module-subtitle">مجالس فقه النفس 131 | لتعارفوا 04 | فقه الأخلاق 03 | سورة الحجرات.</p>
+  <p class="module-instructor">👨‍🏫 د. عبد الرحمن ذاكر الهاشمي</p>
+</div>
+  <div class="progress-section">
+  <div class="progress-bar-container">
+    <div class="progress-bar-fill" style="width: 0%"></div>
+  </div>
+  <p class="progress-text">تقدمك: <span id="progress-percent">0</span>%</p>
+</div>
+  <section class="section objectives-section">
+  <h2 class="section-title">🎯 أهداف التعلّم</h2>
+  <ul class="objectives-list">
+    <li class="objective-item"><span class="objective-number">1</span> تحديد الفرق بين مجالس التفسير التقليدية ومجالس فقه النفس في التعامل مع القرآن الكريم.</li>
+    <li class="objective-item"><span class="objective-number">2</span> فهم مفهوم &quot;التدبر الحقيقي&quot; وضرورة استناده إلى معاني اللغة وأقوال السلف.</li>
+    <li class="objective-item"><span class="objective-number">3</span> استنتاج كيفية احترام النبي ﷺ وتوقيره في غيابه الجسدي من خلال التطبيقات العملية.</li>
+    <li class="objective-item"><span class="objective-number">4</span> تحليل أهمية معرفة نسب النبي ﷺ وسيرته كجزء أصيل من بناء الهوية الإسلامية.</li>
+    <li class="objective-item"><span class="objective-number">5</span> التمييز بين الاتباع الشرعي وبين التكلف أو الابتداع في الدين.</li>
+    <li class="objective-item"><span class="objective-number">6</span> استكشاف الأثر النفسي لتعظيم الوحي على استقرار نفس المؤمن وتزكيتها.</li>
+    <li class="objective-item"><span class="objective-number">7</span> توضيح دور السيرة النبوية في تقديم &quot;التراجم العملية&quot; للآيات القرآنية.</li>
+    <li class="objective-item"><span class="objective-number">8</span> فهم القاعدة الشرعية &quot;لا أخلاق بلا دين&quot; ومركزية الوحي في ضبط السلوك.</li>
+  </ul>
+</section>
+  
+  
+  <section class="section key-points-section">
+  <h2 class="section-title">💡 النقاط الرئيسية</h2>
+  <ul class="key-points-list">
+    <li class="key-point">التي يجب تذكرها</li>
+    <li class="key-point">سورة الحجرات هي &quot;سورة الأخلاق&quot; والمنهج العملي لضبط النفس والتعامل مع الآخرين.</li>
+    <li class="key-point">التدبر الحقيقي للقرآن لا ينفصل عن معاني اللغة وأقوال المفسرين الأوائل من السلف.</li>
+    <li class="key-point">احترام النبي ﷺ اليوم يتجسد في الاتباع الصادق لسنته دون زيادة بدعية أو تشدد متكلف.</li>
+    <li class="key-point">معرفة سيرة النبي ﷺ ونسبه هي صمام الأمان للهوية في زمن انبهار الشباب بالتافهين.</li>
+    <li class="key-point">الصحابة كانوا يراجعون إيمانهم مراجعة نفسية عميقة عند كل توجيه قرآني جديد.</li>
+    <li class="key-point">لا استقامة للأخلاق بدون مرجعية الوحي؛ فالدين هو الذي يمنح القيم ثباتها وقوتها.</li>
+  </ul>
+</section>
+  <section class="section applications-section">
+  <h2 class="section-title">🔧 التطبيقات العملية</h2>
+  <ul class="applications-list">
+    <li class="application-item"><span class="app-number">1</span> .</li>
+    <li class="application-item"><span class="app-number">2</span> تحليل أهمية معرفة نسب النبي ﷺ وسيرته كجزء أصيل من بناء الهوية الإسلامية.</li>
+    <li class="application-item"><span class="app-number">3</span> التمييز بين الاتباع الشرعي وبين التكلف أو الابتداع في الدين.</li>
+    <li class="application-item"><span class="app-number">4</span> استكشاف الأثر النفسي لتعظيم الوحي على استقرار نفس المؤمن وتزكيتها.</li>
+    <li class="application-item"><span class="app-number">5</span> توضيح دور السيرة النبوية في تقديم &quot;التراجم العملية&quot; للآيات القرآنية.</li>
+    <li class="application-item"><span class="app-number">6</span> فهم القاعدة الشرعية &quot;لا أخلاق بلا دين&quot; ومركزية الوحي في ضبط السلوك.</li>
+    <li class="application-item"><span class="app-number">7</span> المفاهيم الأساسية</li>
+    <li class="application-item"><span class="app-number">8</span> ا سورة الأخلاقتسمية تطلق على سورة الحجرات نظراً لكثافة التوجيهات الأخلاقية والتربوية التي تحويها لضبط علاقة المؤمن بنفسه وبالآخر.</li>
+    <li class="application-item"><span class="app-number">9</span> ا التفسير التقليديهو المنهج الذي يعنى بأسباب النزول، ومعاني المفردات الغريبة، والأحكام الفقهية المباشرة المستنبطة من الآيات.</li>
+    <li class="application-item"><span class="app-number">10</span> ا التدبرهو النظر في مآلات الآيات وعمق معانيها النفسية والسلوكية، بشرط عدم تجاوز معاني اللغة وأصول التفسير.</li>
+    <li class="application-item"><span class="app-number">11</span> ا فقه الأخلاقعلم يبحث في كيفية تحويل القيم القرآنية إلى سلوك نفسي وعملي منضبط بمرجعية الوحي.</li>
+    <li class="application-item"><span class="app-number">12</span> ا الاتباعهو لزوم نهج النبي ﷺ في العبادات والسلوكيات دون زيادة (بدعة) أو تشدد (تكلف).</li>
+    <li class="application-item"><span class="app-number">13</span> ا التكلفهو الزيادة في العبادة أو السلوك بما يخرج عن حد الاعتدال ويؤدي إلى المشقة غير المطلوبة شرعاً.</li>
+    <li class="application-item"><span class="app-number">14</span> ا البدعةإحداث أمر جديد في الدين لم يشرعه الله ولا رسوله، وهي نقيض الاتباع الصادق.</li>
+    <li class="application-item"><span class="app-number">15</span> ا تعظيم الوحيحالة نفسية تدفع المؤمن لتقديم أمر الله ورسوله على هواه الشخصي أو آراء البشر.</li>
+    <li class="application-item"><span class="app-number">16</span> ا القددوة العمليةاتخاذ النبي ﷺ نموذجاً حياً يُحتذى به في تفاصيل الحياة اليومية، وليس مجرد شخصية تاريخية.</li>
+    <li class="application-item"><span class="app-number">17</span> ا حبوط العملبطلان أجر العمل الصالح وذهابه نتيجة مخالفة شرعية جسيمة، مثل رفع الصوت فوق صوت النبي ﷺ.</li>
+    <li class="application-item"><span class="app-number">18</span> ا حفظ النسبمعرفة أصول النبي ﷺ وعائلته، وهو جزء من الوفاء والتعريف بمقام النبوة للأجيال.</li>
+    <li class="application-item"><span class="app-number">19</span> ا الرويبضةالإنسان التافه الذي يتكلم في أمر العامة، وحذر المحاضر من انشغال الجيل بهم ونسيان سيرة نبيهم.</li>
+    <li class="application-item"><span class="app-number">20</span> ا العقل في القرآنهو ما يعقل النفس عن الجهل والجهالة، وهو ممدوح دائماً لأنه يوصل إلى الحق والالتزام به.</li>
+    <li class="application-item"><span class="app-number">21</span> ا الاعتزال الإيمانيسلوك اتخذه بعض الصحابة عند الشعور بنقص في إيمانهم أو خوفاً من مخالفة الوحي، وهو مراجعة نفسية جادة.</li>
+    <li class="application-item"><span class="app-number">22</span> ا التبينالمنهج القرآني في التثبت من الأخبار قبل إصدار الأحكام، وهو صمام أمان للعلاقات الاجتماعية.</li>
+    <li class="application-item"><span class="app-number">23</span> المحتوى المنظم مقدمة في منهجية سورة الحجرات وفقه النفسيؤكد المحاضر أن مجالس سورة الحجرات في سياق &quot;فقه النفس&quot; تختلف عن التفسير التقليدي؛ فهي لا تكتفي ببيان معاني المفردات، بل تبحث في &quot;فقه الآخر&quot; وكيفية ضبط الخصومة والحوار. التركيز هنا ينصب على كيفية تحويل الآيات إلى منهج حياة يزكي النفس ويصحح تصوراتها. الخطأ الشائع في &quot;التدبر&quot; الحديث هو ابتكار معاني لا صلة لها باللغة أو أقوال المفسرين الأوائل، وهو ما حذر منه المحاضر بشدة.</li>
+    <li class="application-item"><span class="app-number">24</span> من أمثلة ذلك:</li>
+    <li class="application-item"><span class="app-number">25</span> التمييز بين معنى الكلمة لغوياً وبين الاستنباط الشخصي.</li>
+    <li class="application-item"><span class="app-number">26</span> نقد التفسيرات التي تتجاوز أصول العلم تحت مسمى &quot;التدبر الحر&quot;.</li>
+    <li class="application-item"><span class="app-number">27</span> ربط آيات الحجرات بمشكلات الواقع المعاصر في التعامل مع الآخر. احترام النبي ﷺ في غيابه الجسديتتناول السورة في مطلعها آداب التعامل مع النبي ﷺ، وقد طرح المحاضر تكليفاً حول كيفية ممارسة هذا الاحترام اليوم. الإجابة تكمن في الاتباع دون تكلف أو بدعة، وفي تعظيم سنته عند ذكرها. الاحترام الحقيقي يظهر في تقديم قوله على الهوى الشخصي، والانتهاء عما نهى عنه، واستشعار مراقبته لهدينا وسلوكنا.</li>
+    <li class="application-item"><span class="app-number">28</span> من أمثلة ذلك:</li>
+    <li class="application-item"><span class="app-number">29</span> الصلاة على النبي ﷺ عند ذكره في كل مقام.</li>
+    <li class="application-item"><span class="app-number">30</span> اتباع سننه البسيطة مثل آداب الأكل والشرب باليمين.</li>
+    <li class="application-item"><span class="app-number">31</span> الدفاع عن عرضه وسنته عند تعرضها للإساءة في المجالس. أهمية السيرة والنسب في بناء الهويةينتقد المحاضر ظاهرة انشغال الجيل المعاصر بتفاصيل حياة المشاهير والتافهين &quot;الرويبضة&quot; في حين يجهلون الاسم الثلاثي لنبيهم. معرفة نسب النبي ﷺ وسيرته ليست مجرد معلومات تاريخية، بل هي ربط نفسي بالقدوة العليا. السيرة تقدم لنا &quot;التراجم العملية&quot; للقرآن، وبدونها يبقى الفهم نظرياً وغير قابل للتطبيق.</li>
+    <li class="application-item"><span class="app-number">32</span> من أمثلة ذلك:</li>
+    <li class="application-item"><span class="app-number">33</span> حفظ نسب النبي ﷺ من محمد إلى عدنان وتعليمه للأطفال.</li>
+    <li class="application-item"><span class="app-number">34</span> مقارنة ظروف الحرب في غزة بظروف الصحابة في &quot;أهل الصفة&quot; للصبر.</li>
+    <li class="application-item"><span class="app-number">35</span> جعل النفس &quot;أثراً&quot; يذكر الناس بسيرة النبي ﷺ في الأماكن العامة. التكلف والبدعة وصراع الشدة والتمييعالاتباع الصحيح يقع بين طرفين مذمومين: التكلف (الشدة الزائدة) والبدعة (التمييع والإحداث). السيرة النبوية علمتنا التوازن؛ فالمؤمن لا يبتدع في دينه بدعوى زيادة التقرب، ولا يتكلف ما لا يطيق. هذا التوازن هو الذي يحفظ للنفس استقرارها ويمنعها من الانتكاس أو الشعور بالملل من العبادة.</li>
+    <li class="application-item"><span class="app-number">36</span> من أمثلة ذلك:</li>
+    <li class="application-item"><span class="app-number">37</span> تخصيص عبادات لم يشرعها النبي ﷺ (بدعة).</li>
+    <li class="application-item"><span class="app-number">38</span> تحميل النفس ما لا تطيقه من النوافل بشكل دائم (تكلف).</li>
+    <li class="application-item"><span class="app-number">39</span> الفرق بين الالتزام بالسنة وبين التشدد المنفر للناس. أثر الوحي في علاج النفس ومراجعتهااستعرض المحاضر مواقف الصحابة عند نزول الآيات، مثل اعتزال ثابت بن قيس لنفسه خوفاً من حبوط عمله. هذا يدل على أن الجيل الأول كان لديه حساسية عالية تجاه الوحي، وأنهم كانوا يراجعون أنفسهم مراجعة نفسية عميقة. الاعتزال هنا ليس اكتئاباً بالمعنى المعاصر، بل هو خوف إيماني يزول فور طمأنة الوحي للنفس.</li>
+    <li class="application-item"><span class="app-number">40</span> من أمثلة ذلك:</li>
+    <li class="application-item"><span class="app-number">41</span> موقف ثابت بن قيس عندما خشي من رفع صوته.</li>
+    <li class="application-item"><span class="app-number">42</span> اعتزال الصحابة للناس عند الشعور بخلل في صدق إيمانهم.</li>
+    <li class="application-item"><span class="app-number">43</span> قول أبي بكر &quot;كاد الخيران أن يهلكا&quot; إشارة لعمر وله في حضرة النبي ﷺ. السنة النبوية كتفسير عملي للقرآنالسنة ليست ثانوية، بل هي &quot;التفسير العملي&quot; للقرآن الكريم. الآيات قد تكون مجملة، فتأتي السنة لتفصل كيفية التطبيق في الواقع المعقد. العيش مع &quot;خير القرون&quot; من خلال السيرة يصحح موازين النفس، ويجعل المؤمن يرى غايته بوضوح في خضم الفتن والابتلاءات.</li>
+    <li class="application-item"><span class="app-number">44</span> من أمثلة ذلك:</li>
+    <li class="application-item"><span class="app-number">45</span> تطبيق آية الزكاة من خلال تفاصيل السيرة في جمعها وتوزيعها.</li>
+    <li class="application-item"><span class="app-number">46</span> تعلم آداب الحوار والاختلاف من مواقف النبي ﷺ مع الصحابة.</li>
+    <li class="application-item"><span class="app-number">47</span> استلهام الصبر من حياة النبي ﷺ في مكة والمدينة. خطورة تقديم الهوى على النصتحذر سورة الحجرات من تقديم الذات أو الرأي &quot;بين يدي الله ورسوله&quot;. هذا التقديم قد يكون بصورة &quot;عقلانية&quot; زائفة تحاول رد النصوص. المحاضر يؤكد أن العقل الحقيقي هو الذي يسلم للوحي بعد إدراك كماله، أما تقديم الرأي الشخصي فهو اتباع للهوى يفسد النفس والعمل.</li>
+    <li class="application-item"><span class="app-number">48</span> من أمثلة ذلك:</li>
+    <li class="application-item"><span class="app-number">49</span> نقد من يقول &quot;العقل لا يقبل هذا الحديث&quot; وهو ثابت صحيح.</li>
+    <li class="application-item"><span class="app-number">50</span> مخادعات النفس في شرعنة الهوى تحت مسمى &quot;حرية الرأي&quot;.</li>
+    <li class="application-item"><span class="app-number">51</span> تقديم العادات والتقاليد على الهدي النبوي في المناسبات الاجتماعية. الصلاة على النبي ﷺ تاديباً للنفسالصلاة على النبي ﷺ ليست مجرد ذكر لساني، بل هي تمرين يومي على تعظيم مقامه. البعض يمل من تكرارها، وهذا دليل على حاجة النفس للتأديب. المحاضر يشير إلى أن من علامات رفع قدر النبي ﷺ في النفس أن يصلي عليه المؤمن كلما ذكر اسمه، دون كلل أو ملل.</li>
+    <li class="application-item"><span class="app-number">52</span> من أمثلة ذلك:</li>
+    <li class="application-item"><span class="app-number">53</span> الصلاة عليه ﷺ عند قراءة حديثه الشريف.</li>
+    <li class="application-item"><span class="app-number">54</span> التأدب بخفض الصوت عند قراءة سيرته أو ذكر اسمه.</li>
+    <li class="application-item"><span class="app-number">55</span> تجنب الرموز المختصرة مثل (ص) أو (صلعم) وكتابتها كاملة تعظيماً. السيرة النبوية في مواجهة التفاهة المعاصرةفي زمن &quot;الرويبضة&quot; والمشاهير الرقميين، تبرز السيرة كحصن للهوية. الانبهار بنماذج تافهة يعكس فراغاً نفسياً، وعلاجه هو &quot;الاشتغال بالقدوة العليا&quot;. المؤمن القوي هو من يعرف تفاصيل حياة نبيه أكثر من معرفته بتفاصيل حياة لاعب كره أو ممثل، لأن الأول هو طريقه للنجاة.</li>
+    <li class="application-item"><span class="app-number">56</span> من أمثلة ذلك:</li>
+    <li class="application-item"><span class="app-number">57</span> المقارنة بين معرفة الشباب بأسماء التافهين وجهلهم بأسماء أمهات المؤمنين.</li>
+    <li class="application-item"><span class="app-number">58</span> استبدال متابعة &quot;الترندات&quot; بورد يومي من السيرة النبوية.</li>
+    <li class="application-item"><span class="app-number">59</span> تعليم الأطفال قصص الصحابة بدلاً من أبطال الخيال الزائف. المراجعة النفسية عند سماع الوحيالمؤمن الحق هو من يقع في نفسه الوجل عند سماع الآيات التي تمس سلوكه. سورة الحجرات بما فيها من &quot;لا ترفعوا أصواتكم&quot; و&quot;لا تقدموا&quot; كانت تسبب ارتجافاً في نفوس الصحابة. هذه المراجعة هي جوهر التزكية؛ أن يرى الإنسان نفسه في مرآة الوحي ويعدل مساره فوراً.</li>
+    <li class="application-item"><span class="app-number">60</span> من أمثلة ذلك:</li>
+    <li class="application-item"><span class="app-number">61</span> شعور الصحابة بالخوف من حبوط العمل عند مخالفة الأدب النبوي.</li>
+    <li class="application-item"><span class="app-number">62</span> سرعة الاستجابة &quot;سمعنا وأطعنا&quot; في مواقف الصحابة العملية.</li>
+    <li class="application-item"><span class="app-number">63</span> مراجعة النفس في &quot;شهوة الكلام&quot; وتصدر المجالس تماشياً مع الأدب القرآني. مفهوم العقل وتزكية النفسيربط المحاضر بين &quot;العقل&quot; وبين &quot;خلق الصمت&quot; والتحمل. العقل في سورة الحجرات هو الضابط الذي يمنع الإنسان من الصياح من وراء الحجرات أو التسرع في الحكم. هو اللجام الذي يمسك النفس عن الجهل، وبقدر ما يعقل الإنسان نفسه عن الخطأ، يقوى عقله وتزكو نفسه.</li>
+    <li class="application-item"><span class="app-number">64</span> من أمثلة ذلك:</li>
+    <li class="application-item"><span class="app-number">65</span> الصمت تادباً وانتظار خروج المعلم أو النبي ﷺ.</li>
+    <li class="application-item"><span class="app-number">66</span> ضبط الانفعالات عند تأخر الرد من الآخرين (تطبيق اجتماعي).</li>
+    <li class="application-item"><span class="app-number">67</span> التمييز بين الذكاء المجرد وبين &quot;العقل&quot; الذي يوصل للتقوى. الخاتمة والتهيئة للمجالس القادمةينهي المحاضر المجلس بالتأكيد على أن كل ما سيأتي في &quot;لتعارفوا&quot; من فقه الاختلاف والحوار موجود بذوره في سورة الحجرات. هي السورة المركزية في الأخلاق، والعمل بها هو البداية الحقيقية لأي إصلاح نفسي أو اجتماعي. يدعو الحاضرين للاستمرار في التفكير في &quot;أثر النبي ﷺ&quot; في حياتهم اليومية.</li>
+    <li class="application-item"><span class="app-number">68</span> من أمثلة ذلك:</li>
+    <li class="application-item"><span class="app-number">69</span> ربط السورة بفقه الخصومة والرحمة.</li>
+    <li class="application-item"><span class="app-number">70</span> التمهيد للكلام عن فقه التبين في الأخبار.</li>
+    <li class="application-item"><span class="app-number">71</span> دعوة الطلاب للالتزام بالتكاليف العملية لضمان أثر المجلس.</li>
+    <li class="application-item"><span class="app-number">72</span> النقاط الرئيسية التي يجب تذكرها</li>
+    <li class="application-item"><span class="app-number">73</span> سورة الحجرات هي &quot;سورة الأخلاق&quot; والمنهج العملي لضبط النفس والتعامل مع الآخرين.</li>
+    <li class="application-item"><span class="app-number">74</span> التدبر الحقيقي للقرآن لا ينفصل عن معاني اللغة وأقوال المفسرين الأوائل من السلف.</li>
+    <li class="application-item"><span class="app-number">75</span> احترام النبي ﷺ اليوم يتجسد في الاتباع الصادق لسنته دون زيادة بدعية أو تشدد متكلف.</li>
+    <li class="application-item"><span class="app-number">76</span> معرفة سيرة النبي ﷺ ونسبه هي صمام الأمان للهوية في زمن انبهار الشباب بالتافهين.</li>
+    <li class="application-item"><span class="app-number">77</span> الصحابة كانوا يراجعون إيمانهم مراجعة نفسية عميقة عند كل توجيه قرآني جديد.</li>
+    <li class="application-item"><span class="app-number">78</span> لا استقامة للأخلاق بدون مرجعية الوحي؛ فالدين هو الذي يمنح القيم ثباتها وقوتها.</li>
+    <li class="application-item"><span class="app-number">79</span> التطبيقات العملية</li>
+    <li class="application-item"><span class="app-number">80</span> ابدأ اليوم بحفظ نسب النبي ﷺ (محمد بن عبد الله بن عبد المطلب...) وعلمه لأهل بيتك.</li>
+    <li class="application-item"><span class="app-number">81</span> التزم بالصلاة الكاملة على النبي ﷺ (صلى الله عليه وسلم) كتابة ونطقاً في كل مرة تذكره فيها.</li>
+    <li class="application-item"><span class="app-number">82</span> اجعل لنفسك ورداً يومياً ثابتاً من السنة النبوية (كالأربعين النووية) لتكون قريباً من هدي القدوة.</li>
+    <li class="application-item"><span class="app-number">83</span> راجع مواقفك اليومية في &quot;رفع الصوت&quot; في المجالس، وتمرن على خفضه تادباً مع المنهج القرآني.</li>
+    <li class="application-item"><span class="app-number">84</span> عند ورود أي شبهة أو رأي يعارض السنة، قدم قول النبي ﷺ فوراً وقل &quot;آمنت بالله ورسوله&quot;.</li>
+    <li class="application-item"><span class="app-number">85</span> تبرع بكتب السيرة النبوية الصحيحة للمكتبات العامة أو المساجد لتعريف الناس بمقام نبيهم.</li>
+  </ul>
+</section>
+  <div class="navigation-section">
+  <div class="nav-buttons">
+    <a href="../130/index.html" class="btn btn-secondary">← المجلس السابق</a>
+    <a href="../../index.html" class="btn btn-outline">📚 الفهرس</a>
+    <a href="../132/index.html" class="btn btn-primary">المجلس التالي →</a>
+  </div>
+</div>
+</div>
+
+<script>
+  
+    function updateProgress() {
+      const sections = document.querySelectorAll('.section');
+      const scrollPosition = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrollPercent = (scrollPosition / docHeight) * 100;
+      
+      const progressBar = document.querySelector('.progress-bar-fill');
+      const progressPercent = document.getElementById('progress-percent');
+      
+      if (progressBar) {
+        progressBar.style.width = scrollPercent + '%';
+      }
+      if (progressPercent) {
+        progressPercent.textContent = Math.round(scrollPercent);
+      }
+    }
+
+    window.addEventListener('scroll', updateProgress);
+    window.addEventListener('load', updateProgress);
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    document.querySelectorAll('.section').forEach((section, index) => {
+      section.style.animationDelay = (index * 0.1) + 's';
+    });
+  
+</script>
+
+</body>
+</html>

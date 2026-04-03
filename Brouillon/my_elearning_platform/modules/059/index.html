@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ونفس 31 | فقه الألم 09 | سؤال الشر ومشكلته ومعضلته 03 | معضلة تعريف الشر">
+  <meta name="theme-color" content="#6366f1">
+  <title>ونفس 31 | فقه الألم 09 | سؤال الشر ومشكلته ومعضلته 03 | معضلة تعريف الشر — مجالس فقه النفس</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-color: #FF9800;
+      --secondary-color: #FB8C00;
+      --accent-color: #7FD856;
+      --success-color: #7FD856;
+      --warning-color: #FF9800;
+      --danger-color: #E53935;
+      --bg-dark: #2C2C2C;
+      --bg-light: #F5F5F5;
+      --bg-white: #FFFFFF;
+      --text-dark: #1F1F1F;
+      --text-gray: #666666;
+      --text-light: #FFFFFF;
+      --border-color: #E0E0E0;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Cairo', 'Tajawal', sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      line-height: 1.8;
+      font-size: 16px;
+    }
+
+    .navbar {
+      background: var(--bg-dark);
+      color: var(--text-light);
+      padding: 1rem 0;
+      box-shadow: var(--shadow-md);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 3px solid var(--primary-color);
+    }
+
+    .navbar-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      transition: opacity 0.3s;
+    }
+
+    .nav-links a:hover {
+      opacity: 0.8;
+    }
+
+    .module-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .module-header {
+      background: var(--bg-dark);
+      color: var(--text-light);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 2rem;
+      border-right: 4px solid var(--primary-color);
+    }
+
+    .module-meta {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .module-number {
+      background: var(--primary-color);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+
+    .trilogy-badge {
+      background: var(--accent-color);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+    }
+
+    .module-title {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-light);
+      font-weight: bold;
+    }
+
+    .module-subtitle {
+      color: #CCCCCC;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .module-instructor {
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+
+    .progress-section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 2rem;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: var(--border-color);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+      transition: width 0.3s ease;
+    }
+
+    .progress-text {
+      font-size: 0.9rem;
+      color: var(--text-gray);
+      text-align: center;
+    }
+
+    .section {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 2rem;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: var(--primary-color);
+      border-bottom: 3px solid var(--primary-color);
+      padding-bottom: 0.5rem;
+      font-weight: bold;
+    }
+
+    .objectives-list {
+      list-style: none;
+    }
+
+    .objective-item {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: var(--bg-light);
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+
+    .objective-item:hover {
+      background: #f0f4ff;
+      transform: translateX(-5px);
+    }
+
+    .objective-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      background: var(--primary-color);
+      color: white;
+      border-radius: 50%;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    .concepts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .concept-card {
+      background: linear-gradient(135deg, #F5F5F5, #EEEEEE);
+      padding: 1.5rem;
+      border-radius: 8px;
+      border-right: 3px solid var(--primary-color);
+      transition: all 0.3s;
+    }
+
+    .concept-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .concept-term {
+      color: var(--primary-color);
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .concept-definition {
+      color: var(--text-gray);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .section-content {
+      margin-bottom: 1.5rem;
+    }
+
+    .section-content p {
+      margin-bottom: 1rem;
+      line-height: 1.8;
+      color: var(--text-dark);
+    }
+
+    .examples-box {
+      background: var(--bg-light);
+      padding: 1.5rem;
+      border-radius: 8px;
+      border-right: 3px solid var(--warning-color);
+      margin-top: 1.5rem;
+    }
+
+    .examples-box h4 {
+      color: var(--warning-color);
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+
+    .examples-list {
+      list-style: none;
+      padding-right: 0;
+    }
+
+    .examples-list li {
+      padding: 0.5rem 0;
+      padding-right: 1rem;
+      color: var(--text-gray);
+      border-right: 2px solid var(--warning-color);
+      margin-bottom: 0.5rem;
+    }
+
+    .key-points-list {
+      list-style: none;
+    }
+
+    .key-point {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: linear-gradient(135deg, #fef3c7, #fef08a);
+      border-radius: 8px;
+      border-right: 3px solid var(--warning-color);
+      color: var(--text-dark);
+    }
+
+    .key-point:before {
+      content: "💡";
+      flex-shrink: 0;
+    }
+
+    .applications-list {
+      list-style: none;
+    }
+
+    .application-item {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+      border-radius: 8px;
+      border-right: 3px solid var(--primary-color);
+      color: var(--text-dark);
+    }
+
+    .app-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      background: var(--primary-color);
+      color: white;
+      border-radius: 50%;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    .navigation-section {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 2px solid var(--border-color);
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+      border: none;
+      cursor: pointer;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: var(--accent-color);
+      color: white;
+      font-weight: bold;
+    }
+
+    .btn-primary:hover {
+      background: #6BC34A;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-secondary {
+      background: var(--primary-color);
+      color: white;
+      font-weight: bold;
+    }
+
+    .btn-secondary:hover {
+      background: var(--secondary-color);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--primary-color);
+      border: 2px solid var(--primary-color);
+    }
+
+    .btn-outline:hover {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .btn.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn.disabled:hover {
+      transform: none;
+      box-shadow: none;
+    }
+
+    @media (max-width: 768px) {
+      .module-container {
+        padding: 1rem;
+      }
+
+      .module-title {
+        font-size: 1.5rem;
+      }
+
+      .concepts-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-buttons {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .navbar-content {
+        padding: 0 1rem;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .nav-links {
+        gap: 1rem;
+      }
+    }
+  
+  </style>
+</head>
+<body>
+
+<nav class="navbar" role="navigation" aria-label="التنقل الرئيسي">
+  <div class="navbar-content">
+    <span class="brand">📚 مجالس فقه النفس</span>
+    <div class="nav-links">
+      <a href="../../index.html" aria-label="العودة إلى الرئيسية">الرئيسية</a>
+      <a href="#" aria-label="البحث">البحث</a>
+    </div>
+  </div>
+</nav>
+
+<div class="module-container">
+  <div class="module-header">
+  <div class="module-meta">
+    <span class="module-number">المجلس 059</span>
+    
+  </div>
+  <h1 class="module-title">ونفس 31 | فقه الألم 09 | سؤال الشر ومشكلته ومعضلته 03 | معضلة تعريف الشر</h1>
+  <p class="module-subtitle">أهداف التعلم</p>
+  <p class="module-instructor">👨‍🏫 د. عبد الرحمن ذاكر الهاشمي</p>
+</div>
+  <div class="progress-section">
+  <div class="progress-bar-container">
+    <div class="progress-bar-fill" style="width: 0%"></div>
+  </div>
+  <p class="progress-text">تقدمك: <span id="progress-percent">0</span>%</p>
+</div>
+  <section class="section objectives-section">
+  <h2 class="section-title">🎯 أهداف التعلّم</h2>
+  <ul class="objectives-list">
+    <li class="objective-item"><span class="objective-number">1</span> تحليل أهمية &quot;التعريف الدقيق&quot; في علاج الاضطرابات النفسية والردات الفكرية.</li>
+    <li class="objective-item"><span class="objective-number">2</span> التمييز بين &quot;الألم&quot; و&quot;الشر&quot; من منظور الأثر والمال.</li>
+    <li class="objective-item"><span class="objective-number">3</span> نقد محاولات استنطاق &quot;العقل الفطري&quot; لتعريف الشر بعيداً عن الوحي.</li>
+    <li class="objective-item"><span class="objective-number">4</span> تحليل أثر &quot;البروباغاندا&quot; في تشويه الصور النمطية للخير والشر.</li>
+    <li class="objective-item"><span class="objective-number">5</span> استنتاج دوافع &quot;الهروب من سؤال الشر&quot; لدى العدميين والمتشككين.</li>
+    <li class="objective-item"><span class="objective-number">6</span> تحديد الفرق بين &quot;الفعل&quot; و&quot;الفاعل&quot; في إطلاق وصف الشر والشرير.</li>
+    <li class="objective-item"><span class="objective-number">7</span> تحليل مفهوم &quot;القتل المعنوي&quot; (قتل الشرف والمروءة) كشر يفوق القتل الجسدي.</li>
+    <li class="objective-item"><span class="objective-number">8</span> تقييم &quot;تأثير هوليود&quot; في غسل أدمغة الأطفال تجاه مفاهيم الخير والشر.</li>
+    <li class="objective-item"><span class="objective-number">9</span> استنباط ضرورة &quot;المرد الخارجي&quot; (الوحي) لتجاوز سيولة التعريفات البشرية.</li>
+    <li class="objective-item"><span class="objective-number">10</span> تطبيق مفهوم &quot;التشوف الفطري للعدالة&quot; كدليل على اليوم الآخر والوحي.</li>
+  </ul>
+</section>
+  
+  
+  <section class="section key-points-section">
+  <h2 class="section-title">💡 النقاط الرئيسية</h2>
+  <ul class="key-points-list">
+    <li class="key-point">التي يجب تذكرها</li>
+    <li class="key-point">العقل الفطري يدرك &quot;الأذى&quot;، لكن الوحي وحده هو من يعرف &quot;الشر&quot; كمنظومة قيمية.</li>
+    <li class="key-point">قتل المبادئ والمروءات (الشر المعنوي) أخطر على استقرار الأمة من الكوارث الطبيعية.</li>
+    <li class="key-point">لا يوجد &quot;جين للشر&quot;؛ فالإنسان مخير ومسؤول عن كسبه وفعله.</li>
+    <li class="key-point">التهرب من سؤال الشر هو مخادعة نفسية للعجز عن مواجهة الحقيقة الغيبية.</li>
+    <li class="key-point">التشوف للعدالة المطلقة هو صرخة الفطرة بصدق الوحي ووجود اليوم الآخر.</li>
+    <li class="key-point">اللغة هي السياج الذي يحمي مفاهيم الخير والشر من &quot;السيولة&quot; والتحريف.</li>
+  </ul>
+</section>
+  <section class="section applications-section">
+  <h2 class="section-title">🔧 التطبيقات العملية</h2>
+  <ul class="applications-list">
+    <li class="application-item"><span class="app-number">1</span> عند رؤية فعل &quot;مؤلم&quot;، اسأل: &quot;هل هذا يفسد أصل الشيء (شر) أم هو وجع للبناء (خير)؟&quot;.</li>
+    <li class="application-item"><span class="app-number">2</span> لا تصف شخصاً بـ &quot;الشرير&quot; لمجرد خطأ؛ ابحث عن شروط &quot;القصد والقدرة والاختيار&quot;.</li>
+    <li class="application-item"><span class="app-number">3</span> قلل من تعرض أطفالك للألعاب الرقمية التي تحول &quot;القتل&quot; إلى متعة وتجرد الضحية من إنسانيتها.</li>
+    <li class="application-item"><span class="app-number">4</span> استعمل &quot;بوصلة التشوف&quot;؛ كلما رأيت ظلماً لا يُرد، ذكّر نفسك بـ &quot;عدالة يوم الحساب&quot; لترتاح نفسياً.</li>
+    <li class="application-item"><span class="app-number">5</span> واجه &quot;سيولة التعريفات&quot;؛ لا تسمِ الزنا &quot;علاقة رضائية&quot; ولا العقوق &quot;استقلالاً&quot;؛ التزم بمسميات الوحي.</li>
+    <li class="application-item"><span class="app-number">6</span> خصص ورداً من &quot;سورة الكهف&quot; وتأمل كيف تحول &quot;الشر الظاهر&quot; (خرق السفينة) إلى &quot;خير باطن&quot;.</li>
+  </ul>
+</section>
+  <div class="navigation-section">
+  <div class="nav-buttons">
+    <a href="../058/index.html" class="btn btn-secondary">← المجلس السابق</a>
+    <a href="../../index.html" class="btn btn-outline">📚 الفهرس</a>
+    <a href="../060/index.html" class="btn btn-primary">المجلس التالي →</a>
+  </div>
+</div>
+</div>
+
+<script>
+  
+    function updateProgress() {
+      const sections = document.querySelectorAll('.section');
+      const scrollPosition = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrollPercent = (scrollPosition / docHeight) * 100;
+      
+      const progressBar = document.querySelector('.progress-bar-fill');
+      const progressPercent = document.getElementById('progress-percent');
+      
+      if (progressBar) {
+        progressBar.style.width = scrollPercent + '%';
+      }
+      if (progressPercent) {
+        progressPercent.textContent = Math.round(scrollPercent);
+      }
+    }
+
+    window.addEventListener('scroll', updateProgress);
+    window.addEventListener('load', updateProgress);
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    document.querySelectorAll('.section').forEach((section, index) => {
+      section.style.animationDelay = (index * 0.1) + 's';
+    });
+  
+</script>
+
+</body>
+</html>
