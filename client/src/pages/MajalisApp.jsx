@@ -1,4 +1,5 @@
-import { useState, useCallback, useMemo } from "react";
+import QUIZ_DATA from "./quizData.json";
+import { useState, useCallback, useMemo, useEffect } from "react";
 
 /* ═══════════════════════════════════════════════════════
    DATA — 158 modules extracted from Word document
@@ -4964,6 +4965,24 @@ const Ic = {
 };
 
 /* ═══════════════════════════════════════════════════════
+   DEDICATED QUIZ DATA — Modules with rich quiz questions
+   ═══════════════════════════════════════════════════════ */
+const typeLabel = {
+  definition: "تعريف مفهوم",
+  comprehension: "فهم واستيعاب",
+  key_point: "نقطة رئيسية",
+  application: "تطبيق عملي",
+};
+const typeColor = {
+  definition: "#003087",
+  comprehension: "#0099D8",
+  key_point: "#E2001A",
+  application: "#16a34a",
+};
+
+// QUIZ_DATA imported from quizData.json
+
+/* ═══════════════════════════════════════════════════════
    COLORS — IAM Charter
    ═══════════════════════════════════════════════════════ */
 const C = {
@@ -5069,6 +5088,7 @@ export default function App() {
         {page === "modules" && <Modules {...sp} modules={filtered} searchQ={searchQ} setSearchQ={setSearchQ} />}
         {page === "module" && selMod && <Detail module={selMod} {...sp} />}
         {page === "quiz" && <Quiz {...sp} />}
+        {page === "quiz_direct" && selMod && <Quiz {...sp} directModule={selMod} />}
         {page === "progress" && <Progress {...sp} />}
       </main>
 
@@ -5328,18 +5348,21 @@ function Detail({ module: m, nav, saveProg, progress, togFav, favorites }) {
       </div>
 
       {/* Nav */}
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         {prev ? <button onClick={() => { nav("module", prev); setTab("objectives"); }} style={{ ...S.btn(C.white, C.navy), border: "1px solid " + C.border }}>المجلس السابق <Ic.ArrowR /></button> : <div />}
-        {next && <button onClick={() => { nav("module", next); setTab("objectives"); }} style={S.btn(C.red, "#fff")}><Ic.ArrowL /> المجلس التالي</button>}
+        <button onClick={() => nav("quiz_direct", m)} style={{ ...S.btn(C.gold, C.navy), fontWeight: 700, fontSize: 15, padding: "10px 24px", borderRadius: 10, boxShadow: "0 2px 8px rgba(0,0,0,0.12)", display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 18 }}>📝</span> ابدأ الاختبار
+        </button>
+        {next ? <button onClick={() => { nav("module", next); setTab("objectives"); }} style={S.btn(C.red, "#fff")}><Ic.ArrowL /> المجلس التالي</button> : <div />}
       </div>
     </div>
   );
 }
 
 /* ═══════════════════════════════════════════════════════
-   QUIZ PAGE
+   QUIZ PAGE — Enhanced with dedicated quiz data + fallback
    ═══════════════════════════════════════════════════════ */
-function Quiz({ nav, quizScores, saveQuiz }) {
+function Quiz({ nav, quizScores, saveQuiz, directModule }) {
   const [qm, setQm] = useState(null);
   const [qi, setQi] = useState(0);
   const [sel, setSel] = useState(null);
@@ -5347,23 +5370,78 @@ function Quiz({ nav, quizScores, saveQuiz }) {
   const [score, setScore] = useState(0);
   const [ans, setAns] = useState(false);
   const [qs, setQs] = useState([]);
+  const [started, setStarted] = useState(false);
+  const [answers, setAnswers] = useState([]);
+  const [isDedicated, setIsDedicated] = useState(false);
+  const [directHandled, setDirectHandled] = useState(false);
+
+  useEffect(() => {
+    if (directModule && !directHandled) {
+      setDirectHandled(true);
+      const dedicated = QUIZ_DATA[directModule.module_id];
+      if (dedicated) {
+        setQm(directModule); setQs(dedicated); setQi(0); setSel(null); setDone(false); setScore(0); setAns(false); setStarted(false); setAnswers([]); setIsDedicated(true);
+      } else {
+        const questions = directModule.concepts.map((c, i) => {
+          const wrong = directModule.concepts.filter((_, j) => j !== i).map(x => x.definition).sort(() => Math.random() - 0.5).slice(0, 3);
+          while (wrong.length < 3) wrong.push("\u062a\u0639\u0631\u064a\u0641 \u063a\u064a\u0631 \u0635\u062d\u064a\u062d");
+          const opts = [...wrong, c.definition].sort(() => Math.random() - 0.5);
+          return { id: "q"+i, type: "definition", question: "\u0645\u0627 \u0647\u0648 \u062a\u0639\u0631\u064a\u0641 \"" + c.term + "\"\u061f", options: opts, correct: opts.indexOf(c.definition), explanation: c.definition };
+        });
+        setQm(directModule); setQs(questions); setQi(0); setSel(null); setDone(false); setScore(0); setAns(false); setStarted(true); setAnswers([]); setIsDedicated(false);
+      }
+    }
+  }, [directModule, directHandled]);
+
+  const hasDedicated = (mid) => !!QUIZ_DATA[mid];
 
   const start = (mod) => {
-    const questions = mod.concepts.map((c, i) => {
-      const wrong = mod.concepts.filter((_, j) => j !== i).map(x => x.definition).sort(() => Math.random() - 0.5).slice(0, 3);
-      while (wrong.length < 3) wrong.push("تعريف غير صحيح");
-      const opts = [...wrong, c.definition].sort(() => Math.random() - 0.5);
-      return { q: "ما هو تعريف \"" + c.term + "\"؟", opts, correct: opts.indexOf(c.definition) };
-    });
-    setQm(mod); setQs(questions); setQi(0); setSel(null); setDone(false); setScore(0); setAns(false);
+    const dedicated = QUIZ_DATA[mod.module_id];
+    if (dedicated) {
+      setQm(mod); setQs(dedicated); setQi(0); setSel(null); setDone(false); setScore(0); setAns(false); setStarted(false); setAnswers([]); setIsDedicated(true);
+    } else {
+      const questions = mod.concepts.map((c, i) => {
+        const wrong = mod.concepts.filter((_, j) => j !== i).map(x => x.definition).sort(() => Math.random() - 0.5).slice(0, 3);
+        while (wrong.length < 3) wrong.push("تعريف غير صحيح");
+        const opts = [...wrong, c.definition].sort(() => Math.random() - 0.5);
+        return { id: "q"+i, type: "definition", question: "ما هو تعريف \"" + c.term + "\"؟", options: opts, correct: opts.indexOf(c.definition), explanation: c.definition };
+      });
+      setQm(mod); setQs(questions); setQi(0); setSel(null); setDone(false); setScore(0); setAns(false); setStarted(true); setAnswers([]); setIsDedicated(false);
+    }
   };
 
-  const pick = (i) => { if (ans) return; setSel(i); setAns(true); if (i === qs[qi].correct) setScore(s => s + 1); };
+  const pick = (i) => {
+    if (ans) return;
+    setSel(i);
+    setAns(true);
+    const q = qs[qi];
+    const correctIdx = isDedicated ? q.correct : q.correct;
+    const isCorrect = i === correctIdx;
+    if (isCorrect) setScore(s => s + 1);
+    setAnswers(a => [...a, { qId: q.id, selected: i, correct: correctIdx, isCorrect }]);
+  };
+
   const nxt = () => {
     if (qi < qs.length - 1) { setQi(q => q + 1); setSel(null); setAns(false); }
     else { setDone(true); saveQuiz(qm.module_id, Math.round(score / qs.length * 100)); }
   };
 
+  const restart = () => {
+    setQi(0); setSel(null); setAns(false); setScore(0); setDone(false); setAnswers([]); setStarted(true);
+  };
+
+  const stats = useMemo(() => {
+    if (!done || !isDedicated) return {};
+    const byType = {};
+    qs.forEach((qq, i) => {
+      if (!byType[qq.type]) byType[qq.type] = { total: 0, correct: 0 };
+      byType[qq.type].total++;
+      if (answers[i]?.isCorrect) byType[qq.type].correct++;
+    });
+    return byType;
+  }, [done, answers, qs, isDedicated]);
+
+  // ─── MODULE LIST ───
   if (!qm) return (
     <div>
       <div style={S.heroGrad}>
@@ -5371,14 +5449,15 @@ function Quiz({ nav, quizScores, saveQuiz }) {
         <p style={{ color: "#a0bfee", fontSize: 13 }}>اختبر فهمك للمفاهيم — اختر مجلساً</p>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 14 }}>
-        {ALL_MODULES.filter(m => m.concepts.length >= 2).slice(0, 12).map(mod => (
-          <div key={mod.module_id} style={{ ...S.card, padding: 18 }}>
-            <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
+        {ALL_MODULES.filter(m => m.concepts.length >= 2).map(mod => (
+          <div key={mod.module_id} style={{ ...S.card, padding: 18, border: hasDedicated(mod.module_id) ? "2px solid " + C.red : "1px solid " + C.border }}>
+            <div style={{ display: "flex", gap: 6, marginBottom: 8, flexWrap: "wrap" }}>
               <span style={S.badge(C.red, "#fff")}>{mod.module_id}</span>
+              {hasDedicated(mod.module_id) && <span style={S.badge("#fef2f2", C.red)}>اختبار مخصص</span>}
               {quizScores[mod.module_id] != null && <span style={S.badge(quizScores[mod.module_id] >= 70 ? "#dcfce7" : "#fef2f2", quizScores[mod.module_id] >= 70 ? "#166534" : "#991b1b")}>{quizScores[mod.module_id]}%</span>}
             </div>
             <h3 style={{ fontWeight: 700, color: C.black, fontSize: 13, marginBottom: 8, lineHeight: 1.6, height: 42, overflow: "hidden" }}>{mod.title}</h3>
-            <p style={{ fontSize: 12, color: C.gray, marginBottom: 12 }}>{mod.concepts.length} أسئلة</p>
+            <p style={{ fontSize: 12, color: C.gray, marginBottom: 12 }}>{hasDedicated(mod.module_id) ? QUIZ_DATA[mod.module_id].length + " أسئلة متنوعة" : mod.concepts.length + " أسئلة"}</p>
             <button onClick={() => start(mod)} style={{ ...S.btn(C.navy, "#fff"), width: "100%", justifyContent: "center", fontSize: 13, padding: "9px 16px" }}>
               {quizScores[mod.module_id] != null ? "إعادة" : "ابدأ"}
             </button>
@@ -5388,16 +5467,93 @@ function Quiz({ nav, quizScores, saveQuiz }) {
     </div>
   );
 
+  // ─── DEDICATED INTRO SCREEN ───
+  if (isDedicated && !started) {
+    const total = qs.length;
+    return (
+      <div style={{ maxWidth: 560, margin: "0 auto" }}>
+        <div style={{ ...S.heroGrad, borderRadius: 20, padding: "40px 32px", textAlign: "center", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: -40, left: -40, width: 150, height: 150, borderRadius: "50%", background: "rgba(226,0,26,0.1)" }} />
+          <div style={{ position: "absolute", bottom: -30, right: -30, width: 120, height: 120, borderRadius: "50%", background: "rgba(0,153,216,0.08)" }} />
+          <div style={{ position: "relative", zIndex: 2 }}>
+            <div style={{ display: "inline-block", background: C.red, color: "#fff", fontSize: 11, fontWeight: 700, padding: "4px 14px", borderRadius: 20, marginBottom: 16 }}>
+              المجلس {qm.module_id}
+            </div>
+            <h1 style={{ color: "#fff", fontSize: 22, fontWeight: 800, margin: "0 0 10px", lineHeight: 1.6 }}>{qm.title}</h1>
+            <p style={{ color: "#a0bfee", fontSize: 14, margin: "0 0 8px", lineHeight: 1.7 }}>اختبر فهمك لمحتوى هذا المجلس</p>
+            <div style={{ display: "flex", justifyContent: "center", gap: 20, margin: "20px 0 28px", flexWrap: "wrap" }}>
+              {[[total + " أسئلة", "📝"], ["4 أنواع", "🎯"], ["~5 دقائق", "⏱️"]].map(([lbl, ico], i) => (
+                <div key={i} style={{ background: "rgba(255,255,255,0.08)", borderRadius: 12, padding: "10px 18px", textAlign: "center" }}>
+                  <div style={{ fontSize: 20, marginBottom: 4 }}>{ico}</div>
+                  <div style={{ color: "#fff", fontSize: 12, fontWeight: 600 }}>{lbl}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 8, marginBottom: 24 }}>
+              {Object.entries(typeLabel).map(([k, v]) => (
+                <span key={k} style={{ fontSize: 11, padding: "3px 10px", borderRadius: 8, background: typeColor[k] + "22", color: "#fff", fontWeight: 600, border: "1px solid " + typeColor[k] + "44" }}>{v}</span>
+              ))}
+            </div>
+            <button onClick={() => setStarted(true)} style={{ background: C.red, color: "#fff", border: "none", borderRadius: 12, padding: "14px 40px", fontSize: 16, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", boxShadow: "0 4px 16px rgba(226,0,26,0.3)" }}>
+              ابدأ الاختبار
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── RESULTS ───
   if (done) {
     const pct = Math.round(score / qs.length * 100);
+    const passed = pct >= 70;
     return (
-      <div style={{ maxWidth: 440, margin: "40px auto", textAlign: "center" }}>
-        <div style={{ ...S.card, padding: 36 }}>
-          <div style={{ width: 90, height: 90, borderRadius: "50%", margin: "0 auto 16px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, fontWeight: 800, color: "#fff", background: pct >= 70 ? C.green : C.red }}>{pct}%</div>
-          <h2 style={{ fontSize: 20, fontWeight: 700, color: C.black, marginBottom: 6 }}>{pct >= 70 ? "أحسنت!" : "حاول مرة أخرى"}</h2>
-          <p style={{ color: C.gray, fontSize: 14, marginBottom: 20 }}>{score} من {qs.length} إجابات صحيحة</p>
+      <div style={{ maxWidth: 560, margin: "0 auto" }}>
+        <div style={{ ...S.card, padding: "36px 28px", textAlign: "center" }}>
+          <div style={{ width: 110, height: 110, borderRadius: "50%", margin: "0 auto 20px", display: "flex", alignItems: "center", justifyContent: "center", background: passed ? "linear-gradient(135deg, " + C.green + ", #22c55e)" : "linear-gradient(135deg, " + C.red + ", #ef4444)", boxShadow: passed ? "0 8px 24px rgba(22,163,74,0.3)" : "0 8px 24px rgba(226,0,26,0.3)" }}>
+            <div>
+              <div style={{ fontSize: 32, fontWeight: 800, color: "#fff" }}>{pct}%</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.8)" }}>{score}/{qs.length}</div>
+            </div>
+          </div>
+          <div style={{ display: "inline-block", background: C.navy, color: "#fff", fontSize: 11, fontWeight: 700, padding: "4px 14px", borderRadius: 20, marginBottom: 12 }}>المجلس {qm.module_id} — {qm.title}</div>
+          <h2 style={{ fontSize: 22, fontWeight: 800, color: C.black, margin: "0 0 6px" }}>{passed ? "أحسنت!" : "حاول مرة أخرى"}</h2>
+          <p style={{ color: C.gray, fontSize: 14, margin: "0 0 24px" }}>{passed ? "لقد أتقنت محتوى هذا المجلس" : "راجع المجلس وأعد الاختبار لتحسين نتيجتك"}</p>
+
+          {isDedicated && Object.keys(stats).length > 0 && (
+            <div style={{ background: C.bg, borderRadius: 14, padding: 20, marginBottom: 24, textAlign: "right" }}>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: C.black, marginBottom: 14 }}>تفصيل حسب النوع</h3>
+              {Object.entries(stats).map(([type, s]) => (
+                <div key={type} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                  <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 6, background: (typeColor[type] || C.navy) + "18", color: typeColor[type] || C.navy, fontWeight: 600, minWidth: 85, textAlign: "center" }}>{typeLabel[type] || type}</span>
+                  <div style={{ flex: 1, height: 8, background: "#e5e7eb", borderRadius: 6, overflow: "hidden" }}>
+                    <div style={{ height: "100%", borderRadius: 6, background: typeColor[type] || C.navy, width: (s.correct / s.total * 100) + "%", transition: "width .5s" }} />
+                  </div>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: C.black, minWidth: 36, textAlign: "center" }}>{s.correct}/{s.total}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {isDedicated && answers.filter(a => !a.isCorrect).length > 0 && (
+            <div style={{ textAlign: "right", marginBottom: 24 }}>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: C.red, marginBottom: 12 }}>الإجابات الخاطئة</h3>
+              {answers.filter(a => !a.isCorrect).map((a, idx) => {
+                const qq = qs.find(x => x.id === a.qId);
+                return (
+                  <div key={idx} style={{ background: "#fef2f2", borderRadius: 12, padding: 16, marginBottom: 10, borderRight: "4px solid " + C.red }}>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: C.black, margin: "0 0 8px", lineHeight: 1.7 }}>{qq.question}</p>
+                    <p style={{ fontSize: 12, color: "#991b1b", margin: "0 0 4px" }}><span style={{ fontWeight: 600 }}>إجابتك:</span> {qq.options[a.selected]}</p>
+                    <p style={{ fontSize: 12, color: C.green, margin: "0 0 4px" }}><span style={{ fontWeight: 600 }}>الصواب:</span> {qq.options[a.correct]}</p>
+                    <p style={{ fontSize: 11, color: C.gray, margin: 0, lineHeight: 1.6, fontStyle: "italic" }}>{qq.explanation}</p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
           <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-            <button onClick={() => start(qm)} style={S.btn(C.navy, "#fff")}>إعادة</button>
+            <button onClick={restart} style={S.btn(C.navy, "#fff")}>إعادة الاختبار</button>
             <button onClick={() => setQm(null)} style={{ ...S.btn(C.white, C.black), border: "1px solid " + C.border }}>اختبارات أخرى</button>
           </div>
         </div>
@@ -5405,36 +5561,58 @@ function Quiz({ nav, quizScores, saveQuiz }) {
     );
   }
 
+  // ─── QUESTION ───
   const q = qs[qi];
+  const qOpts = isDedicated ? q.options : q.options;
+  const qCorrect = q.correct;
+  const qQuestion = isDedicated ? q.question : q.question;
   return (
     <div style={{ maxWidth: 600, margin: "0 auto" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
         <button onClick={() => setQm(null)} style={{ background: "none", border: "none", color: C.gray, fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 4 }}><Ic.ArrowR /> العودة</button>
-        <span style={{ fontSize: 13, color: C.gray }}>{qi + 1} / {qs.length}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: C.navy, background: C.bg, padding: "3px 10px", borderRadius: 8 }}>المجلس {qm.module_id} — {qm.title}</span>
+          {isDedicated && q.type && <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 8, background: (typeColor[q.type] || C.navy) + "18", color: typeColor[q.type] || C.navy, fontWeight: 600 }}>{typeLabel[q.type] || ""}</span>}
+          <span style={{ fontSize: 13, color: C.gray, fontWeight: 600 }}>{qi + 1} / {qs.length}</span>
+        </div>
       </div>
       <div style={{ height: 6, background: "#e5e7eb", borderRadius: 6, overflow: "hidden", marginBottom: 20 }}>
         <div style={{ height: "100%", background: C.red, borderRadius: 6, width: ((qi + 1) / qs.length * 100) + "%", transition: "width .3s" }} />
       </div>
       <div style={{ ...S.card, padding: "24px 28px" }}>
-        <h2 style={{ fontSize: 16, fontWeight: 700, color: C.black, marginBottom: 20, lineHeight: 1.7 }}>{q.q}</h2>
-        {q.opts.map((opt, i) => {
-          const isC = i === q.correct, isS = i === sel;
-          let bg = C.white, brd = C.border, clr = C.black;
+        <h2 style={{ fontSize: 16, fontWeight: 700, color: C.black, marginBottom: 20, lineHeight: 1.7 }}>{qQuestion}</h2>
+        {qOpts.map((opt, i) => {
+          const isC = i === qCorrect, isS = i === sel;
+          let bg = C.white, brd = C.border, clr = C.black, fw = 400;
           if (ans) {
-            if (isC) { bg = C.greenBg; brd = C.green; clr = "#166534"; }
-            else if (isS) { bg = "#fef2f2"; brd = "#ef4444"; clr = "#991b1b"; }
+            if (isC) { bg = C.greenBg; brd = C.green; clr = "#166534"; fw = 600; }
+            else if (isS) { bg = "#fef2f2"; brd = "#ef4444"; clr = "#991b1b"; fw = 600; }
             else { clr = "#aaa"; }
-          } else if (isS) { bg = "#eff6ff"; brd = C.navy; clr = C.navy; }
+          } else if (isS) { bg = "#eff6ff"; brd = C.navy; clr = C.navy; fw = 600; }
           return (
             <button key={i} onClick={() => pick(i)} disabled={ans}
-              style={{ display: "block", width: "100%", textAlign: "right", padding: 14, marginBottom: 8, borderRadius: 10, border: "2px solid " + brd, background: bg, color: clr, cursor: ans ? "default" : "pointer", fontSize: 14, lineHeight: 1.7, fontFamily: "inherit", boxSizing: "border-box" }}>
-              {opt}
+              style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "right", padding: 14, marginBottom: 8, borderRadius: 12, border: "2px solid " + brd, background: bg, color: clr, cursor: ans ? "default" : "pointer", fontSize: 14, lineHeight: 1.7, fontFamily: "inherit", boxSizing: "border-box", fontWeight: fw, transition: "all .2s ease" }}>
+              <span style={{ minWidth: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, background: ans ? (isC ? C.green : isS ? "#ef4444" : "#e5e7eb") : (isS ? C.navy : "#e5e7eb"), color: ans ? ((isC || isS) ? "#fff" : "#999") : (isS ? "#fff" : "#999") }}>
+                {ans ? (isC ? "✓" : isS ? "✗" : String.fromCharCode(1571 + i)) : String.fromCharCode(1571 + i)}
+              </span>
+              <span style={{ flex: 1 }}>{opt}</span>
             </button>
           );
         })}
+        {ans && isDedicated && q.explanation && (
+          <div style={{ background: sel === qCorrect ? "#f0fdf4" : "#fffbeb", borderRadius: 12, padding: "14px 16px", marginTop: 16, borderRight: "4px solid " + (sel === qCorrect ? C.green : "#f59e0b") }}>
+            <p style={{ fontSize: 12, fontWeight: 700, color: sel === qCorrect ? C.green : "#b45309", margin: "0 0 6px" }}>{sel === qCorrect ? "إجابة صحيحة! ✓" : "إجابة خاطئة — التصحيح:"}</p>
+            <p style={{ fontSize: 13, color: C.black, margin: 0, lineHeight: 1.8 }}>{q.explanation}</p>
+          </div>
+        )}
         {ans && <button onClick={nxt} style={{ ...S.btn(C.red, "#fff"), width: "100%", justifyContent: "center", marginTop: 12 }}>
           {qi < qs.length - 1 ? "السؤال التالي" : "عرض النتيجة"}
         </button>}
+      </div>
+      <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 20 }}>
+        {qs.map((_, i) => (
+          <div key={i} style={{ width: i === qi ? 24 : 8, height: 8, borderRadius: 4, transition: "all .3s", background: i < qi ? (answers[i]?.isCorrect ? C.green : C.red) : (i === qi ? C.navy : "#d1d5db") }} />
+        ))}
       </div>
     </div>
   );
