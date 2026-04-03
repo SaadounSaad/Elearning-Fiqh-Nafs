@@ -1,4 +1,4 @@
-//import QUIZ_DATA from "./quizData.json";
+import QUIZ_DATA from "./quizData.json";
 import { useState, useCallback, useMemo, useEffect } from "react";
 
 /* ═══════════════════════════════════════════════════════
