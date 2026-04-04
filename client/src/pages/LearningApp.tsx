@@ -192,7 +192,7 @@ function Home({ source, units, chunks, nav, doneCount, totalConcepts, getProgres
   const inProg = units.find(u => { const p = getProgress(u.id); return p > 0 && p < 100; });
   return (
     <div>
-      <div style={S.heroGrad}>
+      <div className="la-hero" style={S.heroGrad}>
         <div style={{ position: "absolute", top: -60, left: -60, width: 200, height: 200, borderRadius: "50%", background: "rgba(226,0,26,0.08)" }} />
         <div style={{ position: "relative", zIndex: 2 }}>
           <span style={S.badge(C.red, "#fff")}>{units.length} {units[0]?.label ?? "وحدة"}</span>
@@ -258,7 +258,7 @@ function UnitsList({ source, units, chunks, searchQ, setSearchQ, getProgress, to
 
   return (
     <div>
-      <div style={S.heroGrad}>
+      <div className="la-hero" style={S.heroGrad}>
         <h1 style={{ color: "#fff", fontSize: 22, fontWeight: 800, marginBottom: 6 }}>{source.title}</h1>
         <p style={{ color: "#a0bfee", fontSize: 13, marginBottom: 14 }}>{units.length} {units[0]?.label ?? "وحدة"}</p>
         <input value={searchQ} onChange={e => setSearchQ(e.target.value)} placeholder="ابحث بالعنوان..."
@@ -287,7 +287,7 @@ function UnitsList({ source, units, chunks, searchQ, setSearchQ, getProgress, to
 /* ═══════════════════════════════════════════════════════
    UNIT DETAIL PAGE
    ═══════════════════════════════════════════════════════ */
-function UnitDetail({ unit, units, chunks, nav, saveProg, progress, togFav, favorites }: {
+function UnitDetail({ unit, units, chunks, nav, saveProg, progress, togFav, favorites, lastTabPerUnit, saveLastTab }: {
   unit: Unit;
   units: Unit[];
   chunks: Chunk[];
@@ -296,8 +296,10 @@ function UnitDetail({ unit, units, chunks, nav, saveProg, progress, togFav, favo
   progress: Record<string, UnitProgress>;
   togFav: (id: string) => void;
   favorites: string[];
+  lastTabPerUnit: Record<string, ProgressSection>;
+  saveLastTab: (unitId: string, tab: ProgressSection) => void;
 }) {
-  const [tab, setTab] = useState<ProgressSection>("objectives");
+  const [tab, setTab] = useState<ProgressSection>(lastTabPerUnit[unit.id] ?? "objectives");
   const isFav = favorites.includes(unit.id);
   const p = progress[unit.id] ?? {};
   const data = useMemo(() => buildTabData(unit, chunks), [unit, chunks]);
@@ -327,7 +329,7 @@ function UnitDetail({ unit, units, chunks, nav, saveProg, progress, togFav, favo
       </div>
 
       {/* Header */}
-      <div style={S.heroGrad}>
+      <div className="la-hero" style={S.heroGrad}>
         <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap", alignItems: "center" }}>
           <span style={S.badge(C.red, "#fff")}>{unit.label} {originalId}</span>
           <span style={S.badge("rgba(255,255,255,0.12)", "#a0bfee")}>{lvlL[data.difficultyLevel] ?? "متوسط"}</span>
@@ -352,11 +354,11 @@ function UnitDetail({ unit, units, chunks, nav, saveProg, progress, togFav, favo
 
       {/* Tabs */}
       <div style={{ ...S.card, overflow: "hidden", marginBottom: 24 }}>
-        <div style={{ display: "flex", overflowX: "auto", borderBottom: "1px solid " + C.border }}>
+        <div className="la-tabs" style={{ display: "flex", overflowX: "auto", borderBottom: "1px solid " + C.border }}>
           {tabs.map(([id, lbl, Icon]) => (
-            <button key={id} onClick={() => { setTab(id); saveProg(unit.id, id); }}
+            <button key={id} onClick={() => { setTab(id); saveProg(unit.id, id); saveLastTab(unit.id, id); }}
               style={{ display: "flex", alignItems: "center", gap: 6, padding: "13px 18px", fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", border: "none", cursor: "pointer", fontFamily: "inherit", borderBottom: tab === id ? "3px solid " + C.red : "3px solid transparent", background: tab === id ? "#fef2f2" : C.white, color: tab === id ? C.red : C.gray }}>
-              <Icon />{lbl}
+              <Icon /><span className="la-tab-label">{lbl}</span>
               {p[id] && <span style={{ width: 7, height: 7, borderRadius: "50%", background: C.green, display: "inline-block" }} />}
             </button>
           ))}
@@ -399,7 +401,7 @@ function UnitDetail({ unit, units, chunks, nav, saveProg, progress, togFav, favo
       </div>
 
       {/* Navigation */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div className="la-detail-nav" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         {prev ? <button onClick={() => { nav("unit", prev); setTab("objectives"); }} style={{ ...S.btn(C.white, C.navy), border: "1px solid " + C.border }}>السابق <Ic.ArrowR /></button> : <div />}
         <button onClick={() => nav("quiz_direct", unit)} style={{ ...S.btn(C.gold, C.navy), fontWeight: 700, fontSize: 15, padding: "10px 24px", borderRadius: 10, boxShadow: "0 2px 8px rgba(0,0,0,0.12)", display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: 18 }}>📝</span> ابدأ الاختبار
@@ -460,7 +462,7 @@ function Quiz({ units, quizQuestions, nav, quizScores, saveQuiz, directUnit }: {
 
   if (!qUnit) return (
     <div>
-      <div style={S.heroGrad}>
+      <div className="la-hero" style={S.heroGrad}>
         <h1 style={{ color: "#fff", fontSize: 22, fontWeight: 800, marginBottom: 6 }}>الاختبارات</h1>
         <p style={{ color: "#a0bfee", fontSize: 13 }}>اختبر فهمك — اختر وحدة</p>
       </div>
@@ -588,7 +590,7 @@ function ProgressPage({ units, doneCount, getProgress, quizScores, favorites, to
 
   return (
     <div>
-      <div style={S.heroGrad}>
+      <div className="la-hero" style={S.heroGrad}>
         <h1 style={{ color: "#fff", fontSize: 22, fontWeight: 800, marginBottom: 6 }}>لوحة التقدم</h1>
         <p style={{ color: "#a0bfee", fontSize: 13 }}>تتبع مسيرتك التعليمية</p>
       </div>
@@ -660,8 +662,16 @@ interface LearningAppProps {
 export default function LearningApp({ sourceData }: LearningAppProps) {
   const { source, units, chunks, quiz_questions } = sourceData;
 
-  const [page, setPage] = useState("home");
-  const [selUnit, setSelUnit] = useState<Unit | null>(null);
+  const [page, setPage] = useLocalStorage(`learning:${source.id}:lastPage`, "home");
+  const [lastUnitId, setLastUnitId] = useLocalStorage<string | null>(`learning:${source.id}:lastUnitId`, null);
+  const [selUnit, setSelUnit] = useState<Unit | null>(() => {
+    try {
+      const stored = localStorage.getItem(`learning:${source.id}:lastUnitId`);
+      const id = stored ? JSON.parse(stored) : null;
+      return id ? (units.find(u => u.id === id) ?? null) : null;
+    } catch { return null; }
+  });
+  const [lastTabPerUnit, setLastTabPerUnit] = useLocalStorage<Record<string, ProgressSection>>(`learning:${source.id}:lastTab`, {});
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchQ, setSearchQ] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
@@ -669,9 +679,15 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
   const [favorites, setFavorites] = useLocalStorage<string[]>(`learning:${source.id}:favorites`, []);
   const [quizScores, setQuizScores] = useLocalStorage<Record<string, number>>(`learning:${source.id}:quizScores`, {});
 
+  const saveLastTab = useCallback((unitId: string, tab: ProgressSection) => {
+    setLastTabPerUnit(prev => ({ ...prev, [unitId]: tab }));
+  }, [setLastTabPerUnit]);
+
   const nav = useCallback((p: string, u?: Unit) => {
-    setPage(p); if (u !== undefined) setSelUnit(u); setMenuOpen(false); setSearchOpen(false);
-  }, []);
+    setPage(p);
+    if (u !== undefined) { setSelUnit(u); setLastUnitId(u.id); }
+    setMenuOpen(false); setSearchOpen(false);
+  }, [setPage, setLastUnitId]);
   const saveProg = useCallback((uid: string, sec: ProgressSection) => setProgress(p => ({ ...p, [uid]: { ...(p[uid] ?? {}), [sec]: true } })), []);
   const togFav = useCallback((uid: string) => setFavorites(f => f.includes(uid) ? f.filter(x => x !== uid) : [...f, uid]), []);
   const saveQuiz = useCallback((uid: string, sc: number) => setQuizScores(q => ({ ...q, [uid]: sc })), []);
@@ -747,7 +763,7 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
       <main style={S.wrap}>
         {page === "home" && <Home source={source} units={units} chunks={chunks} {...sp} />}
         {page === "units" && <UnitsList source={source} units={filtered} chunks={chunks} searchQ={searchQ} setSearchQ={setSearchQ} {...sp} />}
-        {page === "unit" && selUnit && <UnitDetail unit={selUnit} units={units} chunks={chunks} {...sp} />}
+        {page === "unit" && selUnit && <UnitDetail unit={selUnit} units={units} chunks={chunks} {...sp} lastTabPerUnit={lastTabPerUnit} saveLastTab={saveLastTab} />}
         {page === "quiz" && <Quiz units={units} quizQuestions={quiz_questions} nav={nav} quizScores={quizScores} saveQuiz={saveQuiz} />}
         {page === "quiz_direct" && selUnit && <Quiz units={units} quizQuestions={quiz_questions} nav={nav} quizScores={quizScores} saveQuiz={saveQuiz} directUnit={selUnit} />}
         {page === "progress" && <ProgressPage units={units} {...sp} />}
@@ -764,7 +780,36 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
         <p style={{ color: "#7ba3d4", fontSize: 12, margin: 0 }}>© {new Date().getFullYear()} — منصة تعليمية — {units.length} {units[0]?.label ?? "وحدة"}</p>
       </footer>
 
-      <style>{`@media(max-width:768px){ .desk-nav{display:none!important} .mob-btn{display:block!important} }`}</style>
+      <style>{`
+        /* ── NAVBAR ── */
+        @media(max-width:768px){
+          .desk-nav { display:none!important }
+          .mob-btn  { display:block!important }
+        }
+
+        /* ── HERO ── */
+        @media(max-width:640px){
+          .la-hero { padding: 20px 16px !important; border-radius: 14px !important; }
+          .la-hero h1 { font-size: 20px !important; }
+          .la-hero p  { font-size: 13px !important; }
+        }
+
+        /* ── ONGLETS — masquer les labels sur petits écrans ── */
+        @media(max-width:480px){
+          .la-tab-label { display: none; }
+          .la-tabs button { padding: 12px 14px !important; }
+        }
+
+        /* ── NAVIGATION PRÉCÉDENT / SUIVANT ── */
+        @media(max-width:520px){
+          .la-detail-nav {
+            flex-direction: column-reverse !important;
+            gap: 10px !important;
+          }
+          .la-detail-nav button,
+          .la-detail-nav div { width: 100% !important; justify-content: center !important; }
+        }
+      `}</style>
     </div>
   );
 }
