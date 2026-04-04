@@ -1,5 +1,5 @@
-import MajalisApp from "./MajalisApp";
+import FiqhNafsApp from "./FiqhNafsApp";
 
 export default function Home() {
-  return <MajalisApp />;
+  return <FiqhNafsApp />;
 }
