@@ -1,0 +1,907 @@
+<!doctype html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Design System — Rahiq / FiqhNafs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Amiri:wght@400;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   DESIGN TOKENS — Warm Palette (identique à Rahiq)
+═══════════════════════════════════════════════ */
+:root {
+  /* — Surfaces — */
+  --paper:      #F6F3EE;   /* fond global */
+  --paper-2:    #EFEAE2;   /* fond secondaire, hover */
+  --surface:    #FBFAF7;   /* cartes, modals */
+  --ink:        #2B2A28;   /* texte principal */
+  --ink-2:      #6B6760;   /* texte secondaire */
+  --ink-3:      #9C988F;   /* texte tertiaire, placeholders */
+  --line:       #E6E1D7;   /* bordures */
+  --line-soft:  #EFEAE2;   /* bordures légères */
+
+  /* — Couleurs sémantiques — */
+  --red:        #C8341B;   /* accent principal (rouge terre) */
+  --red-ink:    #8A2412;   /* red foncé (hover, texte sur wash) */
+  --red-wash:   #F6E7E2;   /* fond rouge pâle */
+  --navy:       #24386B;   /* accent secondaire */
+  --navy-ink:   #16224A;
+  --navy-wash:  #E7EAF2;
+  --blue:       #3E7FB5;
+  --blue-wash:  #E5EEF6;
+  --ok:         #5A7D4E;   /* succès / complet */
+  --ok-wash:    #EBF0E4;
+  --amber:      #A06B1F;   /* avertissement */
+  --amber-wash: #F4EBD8;
+
+  /* — Rayon & ombres — */
+  --radius:    12px;
+  --radius-lg: 18px;
+  --shadow-sm: 0 1px 0 rgba(43,42,40,.04), 0 1px 3px rgba(43,42,40,.05);
+  --shadow-md: 0 2px 4px rgba(43,42,40,.04), 0 8px 24px rgba(43,42,40,.06);
+
+  /* — Typographie — */
+  --f-sans:  'Geist', 'Inter', system-ui, sans-serif;
+  --f-serif: 'Source Serif 4', Georgia, serif;
+  --f-ar:    'Noto Naskh Arabic', 'Amiri', sans-serif;
+  --f-mono:  'Geist Mono', 'SF Mono', Consolas, monospace;
+}
+
+/* Dark mode */
+body.dark {
+  --paper:      #1C1B19;
+  --paper-2:    #26241F;
+  --surface:    #24221D;
+  --ink:        #EDE8DE;
+  --ink-2:      #B0AA9E;
+  --ink-3:      #7A7468;
+  --line:       #35322C;
+  --line-soft:  #2B2924;
+  --red:        #E5614A;
+  --red-ink:    #F2A091;
+  --red-wash:   #3A2320;
+  --navy:       #7E95C8;
+  --navy-ink:   #A9B9DE;
+  --navy-wash:  #222A3E;
+  --blue:       #6FA6D1;
+  --blue-wash:  #1F2B38;
+  --ok:         #8AAE7A;
+  --ok-wash:    #23301F;
+  --amber:      #D4A054;
+  --amber-wash: #342A1A;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--paper); color: var(--ink);
+  font-family: var(--f-sans); font-size: 15px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+
+/* ─── Layout doc ─── */
+.doc-nav {
+  position: sticky; top: 0; z-index: 40;
+  background: var(--paper); border-bottom: 1px solid var(--line);
+  padding: 0 32px; height: 52px;
+  display: flex; align-items: center; gap: 24px;
+}
+.doc-nav-title { font-family: var(--f-serif); font-weight: 600; font-size: 17px; }
+.doc-nav-links { display: flex; gap: 4px; margin-right: auto; font-size: 13px; }
+.doc-nav-links a {
+  padding: 5px 11px; border-radius: 7px;
+  color: var(--ink-2); transition: all .15s;
+}
+.doc-nav-links a:hover { background: var(--paper-2); color: var(--ink); }
+.doc-toggle {
+  padding: 6px 14px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--surface); font-family: var(--f-sans); font-size: 13px;
+  cursor: pointer; color: var(--ink-2);
+}
+.doc-toggle:hover { background: var(--paper-2); }
+
+.doc-body { max-width: 1100px; margin: 0 auto; padding: 48px 32px 120px; }
+.doc-section { margin-bottom: 72px; }
+.doc-section-title {
+  font-family: var(--f-serif); font-size: 28px; font-weight: 600;
+  color: var(--ink); margin-bottom: 6px; padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.doc-section-sub { font-size: 13.5px; color: var(--ink-3); margin-bottom: 32px; margin-top: 4px; }
+.doc-subsection { margin-bottom: 40px; }
+.doc-subsection-title {
+  font-size: 12px; text-transform: uppercase; letter-spacing: .1em;
+  color: var(--ink-3); font-weight: 600; margin-bottom: 14px;
+}
+.doc-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-start; margin-bottom: 16px; }
+.doc-col { display: flex; flex-direction: column; gap: 8px; }
+
+/* Code snippet */
+.token-code {
+  font-family: var(--f-mono); font-size: 11px; color: var(--ink-3);
+  background: var(--paper-2); border-radius: 5px; padding: 2px 6px;
+}
+
+/* ─── COLOR SWATCHES ─── */
+.swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+.swatch {
+  border-radius: 10px; overflow: hidden;
+  border: 1px solid var(--line); font-size: 11.5px;
+}
+.swatch-color { height: 52px; }
+.swatch-info { padding: 8px 10px; background: var(--surface); }
+.swatch-name { font-weight: 600; color: var(--ink); font-size: 11.5px; }
+.swatch-val { color: var(--ink-3); font-family: var(--f-mono); font-size: 10.5px; margin-top: 2px; }
+
+/* ─── TYPOGRAPHY SCALE ─── */
+.type-row { padding: 14px 0; border-bottom: 1px solid var(--line-soft); display: flex; align-items: baseline; gap: 16px; }
+.type-label { font-size: 11px; font-family: var(--f-mono); color: var(--ink-3); width: 90px; flex-shrink: 0; }
+
+/* ─── RAHIQ COMPONENTS (copié tel quel) ─── */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 18px; border-radius: 10px;
+  font-family: var(--f-ar); font-size: 14px; font-weight: 500;
+  border: 1px solid transparent; cursor: pointer; transition: all .15s;
+}
+.btn-primary { background: var(--ink); color: var(--paper); }
+.btn-primary:hover { background: #000; }
+.btn-red { background: var(--red); color: #fff; }
+.btn-red:hover { background: var(--red-ink); }
+.btn-ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn-ghost:hover { background: var(--paper-2); border-color: var(--ink-3); }
+.btn-sm { padding: 7px 13px; font-size: 13px; }
+
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 10px; border-radius: 999px;
+  font-family: var(--f-mono); font-size: 11px; font-weight: 500;
+  letter-spacing: .02em;
+}
+.pill-navy  { background: var(--navy-wash);  color: var(--navy-ink); }
+.pill-red   { background: var(--red-wash);   color: var(--red-ink); }
+.pill-blue  { background: var(--blue-wash);  color: var(--blue); }
+.pill-ok    { background: var(--ok-wash);    color: var(--ok); }
+.pill-amb   { background: var(--amber-wash); color: var(--amber); }
+.pill-ghost { background: var(--paper-2);    color: var(--ink-2); }
+
+.card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius-lg); transition: all .2s;
+}
+.card.hover:hover { border-color: var(--ink-3); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+
+.chip {
+  padding: 8px 14px; border-radius: 999px;
+  font-family: var(--f-ar); font-size: 13px;
+  background: var(--surface); border: 1px solid var(--line);
+  color: var(--ink-2); cursor: pointer; transition: all .15s;
+}
+.chip:hover { border-color: var(--ink-3); color: var(--ink); }
+.chip.active { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+
+.prog { height: 4px; background: var(--line-soft); border-radius: 999px; overflow: hidden; }
+.prog > span { display: block; height: 100%; background: var(--red); border-radius: 999px; transition: width .4s; }
+.prog.done > span { background: var(--ok); }
+
+.tabs-demo {
+  display: flex; gap: 4px; border-bottom: 1px solid var(--line);
+  margin-bottom: 0;
+}
+.tab {
+  padding: 10px 16px; border: 0; background: transparent;
+  font-family: var(--f-ar); font-size: 14px; font-weight: 500;
+  color: var(--ink-2); border-bottom: 2px solid transparent;
+  margin-bottom: -1px; white-space: nowrap; cursor: pointer;
+  transition: all .15s;
+}
+.tab:hover { color: var(--ink); }
+.tab.active { color: var(--ink); border-color: var(--ink); }
+
+.search-demo {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 10px; padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px; max-width: 340px;
+}
+.search-demo input {
+  flex: 1; border: 0; outline: 0; background: transparent;
+  font-family: var(--f-ar); font-size: 14px; color: var(--ink); direction: rtl;
+}
+.search-demo input::placeholder { color: var(--ink-3); }
+
+.reading-demo {
+  font-family: var(--f-ar); font-size: 16px; line-height: 2.1;
+  color: var(--ink); max-width: 68ch; direction: rtl;
+}
+.reading-demo blockquote {
+  margin: 1em 0; padding: 2px 20px 2px 0;
+  border-right: 2px solid var(--red); color: var(--ink-2); font-style: italic;
+}
+
+.nav-demo {
+  background: var(--paper); border: 1px solid var(--line);
+  border-radius: 14px; overflow: hidden;
+}
+.nav-stripe-demo { height: 2px; background: var(--red); }
+.nav-inner-demo {
+  height: 52px; padding: 0 20px;
+  display: flex; align-items: center; gap: 20px;
+}
+.brand-mark-demo {
+  width: 26px; height: 26px; border-radius: 7px;
+  background: var(--red); color: #fff;
+  font-family: var(--f-serif); font-weight: 700; font-size: 15px;
+  display: grid; place-items: center;
+}
+.brand-name-demo { font-family: var(--f-serif); font-weight: 600; font-size: 16px; }
+.nav-links-demo { display: flex; gap: 2px; margin-right: auto; }
+.nav-link-demo {
+  padding: 6px 12px; border-radius: 7px;
+  font-family: var(--f-ar); font-size: 13px; color: var(--ink-2);
+  transition: all .15s; border: 0; background: transparent; cursor: pointer;
+}
+.nav-link-demo:hover { background: var(--paper-2); color: var(--ink); }
+.nav-link-demo.active { background: var(--ink); color: var(--paper); }
+
+.course-card-demo {
+  width: 280px; border-radius: var(--radius-lg);
+  border: 1px solid var(--line); background: var(--surface);
+  overflow: hidden; cursor: pointer;
+}
+.course-cover-demo {
+  height: 120px; position: relative;
+  background: linear-gradient(135deg, #C8341B 0%, #24386B 100%);
+}
+.course-cover-demo::before {
+  content: ""; position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(36,56,107,.10) 0, transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(200,52,27,.08) 0, transparent 40%);
+}
+.course-glyph {
+  position: absolute; left: 14px; bottom: 10px;
+  font-family: var(--f-serif); font-size: 44px; font-weight: 700;
+  color: white; opacity: .18; line-height: 1;
+}
+.course-body-demo { padding: 16px 18px 18px; }
+
+.eyebrow-demo {
+  font-family: var(--f-sans); font-size: 11.5px;
+  text-transform: uppercase; letter-spacing: .12em;
+  color: var(--ink-3); font-weight: 500;
+}
+.page-title-demo {
+  font-family: var(--f-serif); font-weight: 600;
+  font-size: 38px; line-height: 1.12; color: var(--ink);
+  letter-spacing: -.015em; margin: 6px 0 10px;
+}
+.page-sub-demo { font-family: var(--f-ar); font-size: 15px; color: var(--ink-2); line-height: 1.7; }
+
+.ic { width: 14px; height: 14px; stroke-width: 1.8; stroke: currentColor; fill: none; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.ic-16 { width: 16px; height: 16px; }
+
+/* Spec table */
+.spec-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.spec-table th {
+  text-align: left; padding: 9px 14px;
+  background: var(--paper-2); color: var(--ink-2);
+  font-size: 11px; text-transform: uppercase; letter-spacing: .07em;
+  border-bottom: 1px solid var(--line);
+  font-weight: 600;
+}
+.spec-table td {
+  padding: 10px 14px; border-bottom: 1px solid var(--line-soft);
+  vertical-align: top;
+}
+.spec-table tr:last-child td { border-bottom: 0; }
+.spec-table code { font-family: var(--f-mono); font-size: 12px; background: var(--paper-2); padding: 1px 5px; border-radius: 4px; }
+.spec-table .preview { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+
+/* Principle card */
+.principles { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+.principle {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 14px; padding: 20px;
+}
+.principle-icon { font-size: 22px; margin-bottom: 10px; }
+.principle-title { font-weight: 700; font-size: 14px; color: var(--ink); margin-bottom: 6px; }
+.principle-desc { font-size: 13px; color: var(--ink-2); line-height: 1.65; }
+
+/* Motion */
+.motion-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.motion-chip {
+  padding: 8px 14px; border-radius: 8px;
+  background: var(--surface); border: 1px solid var(--line);
+  font-size: 12.5px;
+}
+.motion-chip code { font-family: var(--f-mono); font-size: 12px; color: var(--red); }
+
+/* Section anchor */
+.anchor { display: block; position: relative; top: -70px; }
+</style>
+</head>
+<body>
+
+<!-- DOC NAV -->
+<nav class="doc-nav">
+  <span class="doc-nav-title">Design System · Rahiq / FiqhNafs</span>
+  <div class="doc-nav-links">
+    <a href="#principles">Principes</a>
+    <a href="#tokens">Tokens</a>
+    <a href="#typography">Typo</a>
+    <a href="#components">Composants</a>
+    <a href="#layout">Layout</a>
+    <a href="#motion">Motion</a>
+    <a href="#rtl">RTL</a>
+  </div>
+  <button class="doc-toggle" onclick="document.body.classList.toggle('dark')">
+    ☾ Dark / Light
+  </button>
+</nav>
+
+<div class="doc-body">
+
+  <!-- INTRO -->
+  <div style="margin-bottom:60px;">
+    <div class="eyebrow-demo" style="margin-bottom:8px;">DESIGN SYSTEM</div>
+    <div class="page-title-demo" style="font-size:44px;">Rahiq · FiqhNafs</div>
+    <p class="page-sub-demo" style="margin-top:6px; max-width:60ch;">
+      Système de design commun aux plateformes <strong>رحيق المعرفة</strong> et <strong>FiqhNafs</strong>.
+      Palette chaude, typographie mixte arabe/latine, dark mode natif,
+      composants RTL-first.
+    </p>
+  </div>
+
+  <!-- 1. PRINCIPES -->
+  <div class="doc-section">
+    <a class="anchor" id="principles"></a>
+    <div class="doc-section-title">1. Principes de design</div>
+    <p class="doc-section-sub">Les décisions qui gouvernent chaque choix visuel.</p>
+    <div class="principles">
+      <div class="principle">
+        <div class="principle-icon">🌡️</div>
+        <div class="principle-title">Chaleur & neutralité</div>
+        <div class="principle-desc">Fond crème (#F6F3EE) plutôt que blanc pur. Les surfaces warm réduisent la fatigue oculaire lors de longues lectures.</div>
+      </div>
+      <div class="principle">
+        <div class="principle-icon">🌙</div>
+        <div class="principle-title">Dark mode natif</div>
+        <div class="principle-desc">Chaque token a sa valeur dark. Jamais de simple inversion : le dark mode utilise des teintes chaudes nuit (#1C1B19).</div>
+      </div>
+      <div class="principle">
+        <div class="principle-icon">📖</div>
+        <div class="principle-title">Lecture first</div>
+        <div class="principle-desc">Taille de base 15–17px, line-height 1.8–2.1 en arabe. Le corps de texte arabe utilise Noto Naskh pour une lisibilité maximale.</div>
+      </div>
+      <div class="principle">
+        <div class="principle-icon">↔️</div>
+        <div class="principle-title">RTL first</div>
+        <div class="principle-desc">Toute la structure est dir="rtl". Le latin (chiffres, labels UI) utilise la police sans-serif latine avec .lat.</div>
+      </div>
+      <div class="principle">
+        <div class="principle-icon">🔴</div>
+        <div class="principle-title">Un seul accent</div>
+        <div class="principle-desc">Rouge terre cuite (#C8341B) comme couleur d'action principale. Navy (#24386B) en secondaire. Éviter la surcharge de couleurs sémantiques.</div>
+      </div>
+      <div class="principle">
+        <div class="principle-icon">⚡</div>
+        <div class="principle-title">Transitions courtes</div>
+        <div class="principle-desc">Toutes les animations ≤ 250ms. Fade + translateY(4px) pour les écrans, .15s ease pour les états hover.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. TOKENS COULEURS -->
+  <div class="doc-section">
+    <a class="anchor" id="tokens"></a>
+    <div class="doc-section-title">2. Tokens couleur</div>
+    <p class="doc-section-sub">Variables CSS à copier telles quelles dans :root et body.dark.</p>
+
+    <div class="doc-subsection">
+      <div class="doc-subsection-title">Surfaces & encres</div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background:#F6F3EE"></div><div class="swatch-info"><div class="swatch-name">--paper</div><div class="swatch-val">#F6F3EE</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#EFEAE2"></div><div class="swatch-info"><div class="swatch-name">--paper-2</div><div class="swatch-val">#EFEAE2</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FBFAF7; border:1px solid #E6E1D7"></div><div class="swatch-info"><div class="swatch-name">--surface</div><div class="swatch-val">#FBFAF7</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#2B2A28"></div><div class="swatch-info"><div class="swatch-name">--ink</div><div class="swatch-val">#2B2A28</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#6B6760"></div><div class="swatch-info"><div class="swatch-name">--ink-2</div><div class="swatch-val">#6B6760</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#9C988F"></div><div class="swatch-info"><div class="swatch-name">--ink-3</div><div class="swatch-val">#9C988F</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#E6E1D7"></div><div class="swatch-info"><div class="swatch-name">--line</div><div class="swatch-val">#E6E1D7</div></div></div>
+      </div>
+    </div>
+
+    <div class="doc-subsection">
+      <div class="doc-subsection-title">Couleurs sémantiques</div>
+      <div class="swatch-grid">
+        <div class="swatch"><div class="swatch-color" style="background:#C8341B"></div><div class="swatch-info"><div class="swatch-name">--red</div><div class="swatch-val">#C8341B · Accent</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F6E7E2"></div><div class="swatch-info"><div class="swatch-name">--red-wash</div><div class="swatch-val">#F6E7E2</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#24386B"></div><div class="swatch-info"><div class="swatch-name">--navy</div><div class="swatch-val">#24386B · 2nd</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#E7EAF2"></div><div class="swatch-info"><div class="swatch-name">--navy-wash</div><div class="swatch-val">#E7EAF2</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#3E7FB5"></div><div class="swatch-info"><div class="swatch-name">--blue</div><div class="swatch-val">#3E7FB5</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#5A7D4E"></div><div class="swatch-info"><div class="swatch-name">--ok</div><div class="swatch-val">#5A7D4E · Succès</div></div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#A06B1F"></div><div class="swatch-info"><div class="swatch-name">--amber</div><div class="swatch-val">#A06B1F · Warn</div></div></div>
+      </div>
+    </div>
+
+    <div class="doc-subsection">
+      <div class="doc-subsection-title">Équivalents dark mode</div>
+      <table class="spec-table" style="background:var(--surface); border-radius:12px; overflow:hidden; border:1px solid var(--line);">
+        <thead><tr><th>Token</th><th>Light</th><th>Dark</th><th>Usage</th></tr></thead>
+        <tbody>
+          <tr><td><code>--paper</code></td><td>#F6F3EE</td><td>#1C1B19</td><td>Fond page</td></tr>
+          <tr><td><code>--surface</code></td><td>#FBFAF7</td><td>#24221D</td><td>Cartes, modals</td></tr>
+          <tr><td><code>--ink</code></td><td>#2B2A28</td><td>#EDE8DE</td><td>Texte principal</td></tr>
+          <tr><td><code>--line</code></td><td>#E6E1D7</td><td>#35322C</td><td>Bordures</td></tr>
+          <tr><td><code>--red</code></td><td>#C8341B</td><td>#E5614A</td><td>Accent</td></tr>
+          <tr><td><code>--navy</code></td><td>#24386B</td><td>#7E95C8</td><td>Accent 2</td></tr>
+          <tr><td><code>--ok</code></td><td>#5A7D4E</td><td>#8AAE7A</td><td>Succès</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="doc-subsection">
+      <div class="doc-subsection-title">Radius & ombres</div>
+      <table class="spec-table" style="background:var(--surface); border-radius:12px; overflow:hidden; border:1px solid var(--line);">
+        <thead><tr><th>Token</th><th>Valeur</th><th>Usage</th></tr></thead>
+        <tbody>
+          <tr><td><code>--radius</code></td><td>12px</td><td>Boutons, champs, composants internes</td></tr>
+          <tr><td><code>--radius-lg</code></td><td>18px</td><td>Cartes, modals, panels</td></tr>
+          <tr><td><code>--shadow-sm</code></td><td>0 1px 3px rgba(…,.05)</td><td>Éléments flottants légers</td></tr>
+          <tr><td><code>--shadow-md</code></td><td>0 8px 24px rgba(…,.06)</td><td>Cartes hover, popovers</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 3. TYPOGRAPHIE -->
+  <div class="doc-section">
+    <a class="anchor" id="typography"></a>
+    <div class="doc-section-title">3. Typographie</div>
+    <p class="doc-section-sub">4 rôles typographiques, 4 polices Google Fonts.</p>
+
+    <div class="doc-subsection">
+      <div class="doc-subsection-title">Familles</div>
+      <table class="spec-table" style="background:var(--surface); border-radius:12px; overflow:hidden; border:1px solid var(--line);">
+        <thead><tr><th>Variable</th><th>Police</th><th>Rôle</th><th>Exemple</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>--f-ar</code></td>
+            <td>Noto Naskh Arabic · Amiri</td>
+            <td>Corps arabe, UI arabe</td>
+            <td style="font-family:'Noto Naskh Arabic',serif; font-size:17px; direction:rtl;">رحيق المعرفة</td>
+          </tr>
+          <tr>
+            <td><code>--f-serif</code></td>
+            <td>Source Serif 4</td>
+            <td>Titres, brand, hero</td>
+            <td style="font-family:'Source Serif 4',serif; font-size:20px;">Platform Title</td>
+          </tr>
+          <tr>
+            <td><code>--f-sans</code></td>
+            <td>Geist · Inter</td>
+            <td>UI latin, labels, eyebrows</td>
+            <td style="font-family:'Geist',sans-serif; font-size:14px;">Label · Eyebrow</td>
+          </tr>
+          <tr>
+            <td><code>--f-mono</code></td>
+            <td>Geist Mono</td>
+            <td>Chiffres, stats, codes</td>
+            <td style="font-family:'Geist Mono',monospace; font-size:14px;">42% · 1.2 MB</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="doc-subsection">
+      <div class="doc-subsection-title">Échelle typographique</div>
+      <div style="background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:20px 24px;">
+        <div class="type-row">
+          <span class="type-label">Page title</span>
+          <span style="font-family:'Source Serif 4',serif; font-size:42px; font-weight:600; letter-spacing:-.015em; line-height:1.1;">دوراتك العلميّة</span>
+        </div>
+        <div class="type-row">
+          <span class="type-label">Hero h1</span>
+          <span style="font-family:'Source Serif 4',serif; font-size:36px; font-weight:600; letter-spacing:-.015em;">عنوان الكتاب الرئيسي</span>
+        </div>
+        <div class="type-row">
+          <span class="type-label">Section h2</span>
+          <span style="font-family:'Source Serif 4',serif; font-size:22px; font-weight:600;">الوحدات الأخيرة</span>
+        </div>
+        <div class="type-row">
+          <span class="type-label">Card title</span>
+          <span style="font-family:'Noto Naskh Arabic',serif; font-size:18px; font-weight:700; direction:rtl;">عنوان الدورة الدراسيّة</span>
+        </div>
+        <div class="type-row">
+          <span class="type-label">Body (ar)</span>
+          <span style="font-family:'Noto Naskh Arabic',serif; font-size:16px; line-height:1.9; direction:rtl;">النص الأساسي للمحتوى التعليمي، قابل للقراءة على الشاشات.</span>
+        </div>
+        <div class="type-row">
+          <span class="type-label">UI label</span>
+          <span style="font-family:'Geist',sans-serif; font-size:13.5px; color:var(--ink-2);">Navigation · Filter · Label</span>
+        </div>
+        <div class="type-row">
+          <span class="type-label">Eyebrow</span>
+          <span style="font-family:'Geist',sans-serif; font-size:11.5px; text-transform:uppercase; letter-spacing:.12em; color:var(--ink-3); font-weight:500;">SECTION LABEL</span>
+        </div>
+        <div class="type-row" style="border-bottom:0;">
+          <span class="type-label">Mono / stat</span>
+          <span style="font-family:'Geist Mono',monospace; font-size:13px; color:var(--ink-2);">42% · 1,240 · 2.4 MB</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="doc-subsection">
+      <div class="doc-subsection-title">Règles typographiques</div>
+      <table class="spec-table" style="background:var(--surface); border-radius:12px; overflow:hidden; border:1px solid var(--line);">
+        <thead><tr><th>Contexte</th><th>Font-size</th><th>Line-height</th><th>Font-family</th></tr></thead>
+        <tbody>
+          <tr><td>Corps de lecture arabe</td><td>17px</td><td>2.1</td><td>--f-ar</td></tr>
+          <tr><td>Corps UI arabe</td><td>15px</td><td>1.7</td><td>--f-ar</td></tr>
+          <tr><td>Titre de carte</td><td>18px</td><td>1.45</td><td>--f-ar, 700</td></tr>
+          <tr><td>Métadonnées / sous-titres</td><td>12–13px</td><td>1.5</td><td>--f-sans ou --f-mono</td></tr>
+          <tr><td>Boutons</td><td>14px</td><td>—</td><td>--f-ar, 500</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 4. COMPOSANTS -->
+  <div class="doc-section">
+    <a class="anchor" id="components"></a>
+    <div class="doc-section-title">4. Composants</div>
+    <p class="doc-section-sub">Tous les composants réutilisables avec leurs variantes.</p>
+
+    <!-- BOUTONS -->
+    <div class="doc-subsection">
+      <div class="doc-subsection-title">Boutons</div>
+      <div style="background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:24px;">
+        <div class="doc-row">
+          <button class="btn btn-red">
+            <svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            تحميل · Primary
+          </button>
+          <button class="btn btn-primary">Btn Primary</button>
+          <button class="btn btn-ghost">
+            <svg class="ic" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            Ghost
+          </button>
+          <button class="btn btn-sm btn-ghost">Small Ghost</button>
+        </div>
+        <div style="margin-top:12px; font-size:12.5px; color:var(--ink-3);">
+          Padding: 10px 18px · sm: 7px 13px · radius: 10px · font: --f-ar 14px 500
+        </div>
+      </div>
+    </div>
+
+    <!-- PILLS / BADGES -->
+    <div class="doc-subsection">
+      <div class="doc-subsection-title">Pills / Badges</div>
+      <div style="background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:24px;">
+        <div class="doc-row" style="flex-wrap:wrap;">
+          <span class="pill pill-navy">navy</span>
+          <span class="pill pill-red">red</span>
+          <span class="pill pill-blue">blue</span>
+          <span class="pill pill-ok">✓ مكتمل</span>
+          <span class="pill pill-amb">amber</span>
+          <span class="pill pill-ghost">ghost</span>
+        </div>
+        <div style="margin-top:12px; font-size:12.5px; color:var(--ink-3);">
+          Padding: 3px 10px · radius: 999px · font: --f-mono 11px 500
+        </div>
+      </div>
+    </div>
+
+    <!-- CHIPS / FILTER -->
+    <div class="doc-subsection">
+      <div class="doc-subsection-title">Chips (filtres)</div>
+      <div style="background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:24px;">
+        <div class="doc-row" style="flex-direction:row; flex-wrap:wrap;">
+          <button class="chip active">الكلّ <span style="display:inline-block;background:rgba(255,255,255,.2);border-radius:999px;padding:0 6px;font-size:11px;margin-right:4px;">4</span></button>
+          <button class="chip">كتب دينية</button>
+          <button class="chip">علم النفس</button>
+          <button class="chip">فلسفة</button>
+          <button class="chip" style="opacity:.45;">كتب علمية</button>
+        </div>
+        <div style="margin-top:12px; font-size:12.5px; color:var(--ink-3);">
+          Padding: 8px 14px · radius: 999px · actif: bg --ink · vide: opacity .45
+        </div>
+      </div>
+    </div>
+
+    <!-- CARTES -->
+    <div class="doc-subsection">
+      <div class="doc-subsection-title">Carte cours</div>
+      <div style="background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:24px;">
+        <div class="course-card-demo card hover">
+          <div class="course-cover-demo">
+            <span class="pill pill-ghost" style="position:absolute;top:12px;right:12px;">عربيّة</span>
+            <div class="course-glyph">أ</div>
+          </div>
+          <div class="course-body-demo">
+            <div style="font-family:'Noto Naskh Arabic',serif; font-size:17px; font-weight:700; direction:rtl; margin-bottom:4px;">أخلاق القرآن — المجلد الأول</div>
+            <div style="font-size:12.5px; color:var(--ink-2); font-family:'Geist',sans-serif; direction:rtl;">المؤلف · 51 وحدة</div>
+            <button style="display:inline-flex;align-items:center;gap:4px;font-size:11.5px;color:var(--red);background:var(--red-wash);border:1px solid var(--red-wash);border-radius:6px;padding:3px 8px;margin-top:8px;cursor:pointer;font-family:'Geist',sans-serif;">
+              🏷 كتب دينية
+            </button>
+            <div class="prog" style="margin-top:10px;"><span style="width:42%"></span></div>
+            <div style="display:flex;gap:10px;font-size:12px;color:var(--ink-2);margin-top:10px;font-family:'Geist Mono',monospace;">
+              <span>42%</span><span>·</span><span>21 من 51</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:14px; font-size:12.5px; color:var(--ink-3);">
+          Cover: 132px · glyph: --f-serif 48px navy opacity:.18 · Hover: translateY(-1px) + shadow-md
+        </div>
+      </div>
+    </div>
+
+    <!-- PROGRESS BAR -->
+    <div class="doc-subsection">
+      <div class="doc-subsection-title">Barre de progression</div>
+      <div style="background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:24px; display:flex; flex-direction:column; gap:12px;">
+        <div>
+          <div style="font-size:12px; color:var(--ink-3); margin-bottom:6px; font-family:'Geist',sans-serif;">42% — en cours (rouge)</div>
+          <div class="prog" style="width:280px;"><span style="width:42%"></span></div>
+        </div>
+        <div>
+          <div style="font-size:12px; color:var(--ink-3); margin-bottom:6px; font-family:'Geist',sans-serif;">100% — terminé (vert)</div>
+          <div class="prog done" style="width:280px;"><span style="width:100%"></span></div>
+        </div>
+        <div style="font-size:12.5px; color:var(--ink-3);">Hauteur: 4px · bg: --line-soft · fill: --red (en cours) ou --ok (terminé)</div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="doc-subsection">
+      <div class="doc-subsection-title">Tabs (3 variantes)</div>
+      <div style="background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:24px; display:flex; flex-direction:column; gap:24px;">
+        <div>
+          <div style="font-size:11px; color:var(--ink-3); margin-bottom:8px; text-transform:uppercase; letter-spacing:.06em; font-family:'Geist',sans-serif;">Underline (défaut)</div>
+          <div class="tabs-demo">
+            <button class="tab active" style="direction:rtl;">أهداف التعلّم</button>
+            <button class="tab" style="direction:rtl;">المفاهيم</button>
+            <button class="tab" style="direction:rtl;">المحتوى</button>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px; color:var(--ink-3); margin-bottom:8px; text-transform:uppercase; letter-spacing:.06em; font-family:'Geist',sans-serif;">Pill variant</div>
+          <div style="display:flex; gap:6px;">
+            <button style="padding:7px 14px;border-radius:999px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);font-family:'Noto Naskh Arabic',serif;font-size:14px;cursor:pointer;">أهداف</button>
+            <button style="padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink-2);font-family:'Noto Naskh Arabic',serif;font-size:14px;cursor:pointer;">مفاهيم</button>
+            <button style="padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink-2);font-family:'Noto Naskh Arabic',serif;font-size:14px;cursor:pointer;">محتوى</button>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px; color:var(--ink-3); margin-bottom:8px; text-transform:uppercase; letter-spacing:.06em; font-family:'Geist',sans-serif;">Tint variant</div>
+          <div style="display:flex; gap:4px; border-bottom:1px solid var(--line);">
+            <button style="padding:10px 16px;border:0;background:var(--red-wash);color:var(--red-ink);font-family:'Noto Naskh Arabic',serif;font-size:14px;cursor:pointer;border-radius:10px 10px 0 0;">أهداف</button>
+            <button style="padding:10px 16px;border:0;background:transparent;color:var(--ink-2);font-family:'Noto Naskh Arabic',serif;font-size:14px;cursor:pointer;">مفاهيم</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="doc-subsection">
+      <div class="doc-subsection-title">Champ de recherche</div>
+      <div style="background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:24px;">
+        <div class="search-demo">
+          <svg class="ic ic-16" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input placeholder="ابحث في عناوين الوحدات..." />
+        </div>
+        <div style="margin-top:12px; font-size:12.5px; color:var(--ink-3);">
+          bg: --surface · border: --line · radius: 10px · flex avec icône SVG 16px
+        </div>
+      </div>
+    </div>
+
+    <!-- NAVBAR -->
+    <div class="doc-subsection">
+      <div class="doc-subsection-title">Navbar</div>
+      <div style="background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:24px;">
+        <div class="nav-demo">
+          <div class="nav-stripe-demo"></div>
+          <div class="nav-inner-demo">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="brand-mark-demo">ف</div>
+              <span class="brand-name-demo" style="font-family:'Source Serif 4',serif;">FiqhNafs</span>
+            </div>
+            <div class="nav-links-demo">
+              <button class="nav-link-demo active" style="font-family:'Noto Naskh Arabic',serif;">المكتبة</button>
+              <button class="nav-link-demo" style="font-family:'Noto Naskh Arabic',serif;">الوحدات</button>
+              <button class="nav-link-demo" style="font-family:'Noto Naskh Arabic',serif;">التقدّم</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-right:auto;">
+              <div style="width:30px;height:30px;border-radius:50%;background:var(--navy-wash);color:var(--navy);display:grid;place-items:center;font-weight:600;font-size:12px;font-family:'Geist',sans-serif;">س</div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:12px; font-size:12.5px; color:var(--ink-3);">
+          Stripe rouge 2px en haut · height 58px · sticky top:0 · nav-link actif: bg --ink
+        </div>
+      </div>
+    </div>
+
+    <!-- LECTURE -->
+    <div class="doc-subsection">
+      <div class="doc-subsection-title">Corps de lecture (reading)</div>
+      <div style="background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:28px;">
+        <div class="reading-demo">
+          <p>إنّ التزكية الحقيقيّة للنفس لا تقوم على مجرّد الالتزام الخارجي، بل تنبع من فهمٍ عميق للطبيعة البشريّة في ضوء الوحي الإلهي.</p>
+          <blockquote>كلّ نفسٍ بما كسبت رهينة — ولا تُحمَل الأثقال إلا بما يُطاق.</blockquote>
+          <p>وتشمل هذه العلوم علم النفس الإسلامي، والفقه النفسي، وتزكية الأخلاق.</p>
+        </div>
+        <div style="margin-top:16px; font-size:12.5px; color:var(--ink-3);">
+          font-size: 17px · line-height: 2.1 · max-width: 68ch · blockquote: border-right 2px --red
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="doc-subsection">
+      <div class="doc-subsection-title">Toasts / Notifications</div>
+      <div style="background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:24px; display:flex; flex-direction:column; gap:10px;">
+        <div style="display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--paper);padding:12px 20px;border-radius:10px;font-family:'Noto Naskh Arabic',serif;font-size:14px;width:fit-content;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          تمّ تحميل الدورة بنجاح
+        </div>
+        <div style="display:inline-flex;align-items:center;gap:10px;background:#5A7D4E;color:#fff;padding:12px 20px;border-radius:10px;font-family:'Noto Naskh Arabic',serif;font-size:14px;width:fit-content;">
+          ✓ ok — --ok background
+        </div>
+        <div style="display:inline-flex;align-items:center;gap:10px;background:#C8341B;color:#fff;padding:12px 20px;border-radius:10px;font-family:'Noto Naskh Arabic',serif;font-size:14px;width:fit-content;">
+          ✕ err — --red background
+        </div>
+        <div style="font-size:12.5px; color:var(--ink-3);">
+          position: fixed bottom-right 1.5rem · z-index 500 · animation: fade .25s
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. LAYOUT -->
+  <div class="doc-section">
+    <a class="anchor" id="layout"></a>
+    <div class="doc-section-title">5. Layout & structure</div>
+    <p class="doc-section-sub">Grilles, espacements et structure de page.</p>
+
+    <div class="doc-subsection">
+      <div class="doc-subsection-title">Conteneur principal</div>
+      <table class="spec-table" style="background:var(--surface); border-radius:12px; overflow:hidden; border:1px solid var(--line);">
+        <thead><tr><th>Règle</th><th>Valeur</th></tr></thead>
+        <tbody>
+          <tr><td>max-width</td><td>1240px centré</td></tr>
+          <tr><td>padding desktop</td><td>44px 28px 96px</td></tr>
+          <tr><td>padding mobile (≤700px)</td><td>24px 16px 80px (tab bar bottom)</td></tr>
+          <tr><td>Navbar height</td><td>58px, sticky top:0, z-index:40</td></tr>
+          <tr><td>Mobile tab bar</td><td>56px, fixed bottom, z-index:50</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="doc-subsection">
+      <div class="doc-subsection-title">Grilles</div>
+      <table class="spec-table" style="background:var(--surface); border-radius:12px; overflow:hidden; border:1px solid var(--line);">
+        <thead><tr><th>Grille</th><th>Colonnes</th><th>Gap</th><th>Usage</th></tr></thead>
+        <tbody>
+          <tr><td><code>.lib-grid</code></td><td>auto-fill minmax(280px, 1fr)</td><td>20px</td><td>Cartes livres</td></tr>
+          <tr><td><code>.unit-grid</code></td><td>auto-fill minmax(300px, 1fr)</td><td>16px</td><td>Cartes unités</td></tr>
+          <tr><td><code>.concept-grid</code></td><td>auto-fill minmax(280px, 1fr)</td><td>14px</td><td>Concepts</td></tr>
+          <tr><td>Course hero</td><td>1fr 320px</td><td>48px</td><td>Hero 2 cols</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="doc-subsection">
+      <div class="doc-subsection-title">Densité (data-density)</div>
+      <table class="spec-table" style="background:var(--surface); border-radius:12px; overflow:hidden; border:1px solid var(--line);">
+        <thead><tr><th>Mode</th><th>Attribut</th><th>Effet</th></tr></thead>
+        <tbody>
+          <tr><td>Dense</td><td><code>data-density="dense"</code></td><td>padding-top 28px, grid gap 12px, titre 34px</td></tr>
+          <tr><td>Balanced (défaut)</td><td><code>data-density="balanced"</code></td><td>Valeurs standard</td></tr>
+          <tr><td>Airy</td><td><code>data-density="airy"</code></td><td>padding-top 60px, grid gap 28px, pb 120px</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="doc-subsection">
+      <div class="doc-subsection-title">Structure de page type</div>
+      <div style="background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:24px; font-size:13px; font-family:'Geist Mono',monospace; line-height:2; color:var(--ink-2);">
+        &lt;nav class="nav"&gt; [stripe rouge 2px + inner 58px] &lt;/nav&gt;<br>
+        &lt;main class="page screen active"&gt;<br>
+        &nbsp;&nbsp;[lib-masthead] titre + actions<br>
+        &nbsp;&nbsp;[lib-stats-row] stats rapides<br>
+        &nbsp;&nbsp;[continue-card] reprise lecture (conditionnel)<br>
+        &nbsp;&nbsp;[online-lib accordéon] bibliothèque réseau<br>
+        &nbsp;&nbsp;[lib-filter-bar] chips catégories<br>
+        &nbsp;&nbsp;[lib-grid] grille cartes<br>
+        &lt;/main&gt;
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. MOTION -->
+  <div class="doc-section">
+    <a class="anchor" id="motion"></a>
+    <div class="doc-section-title">6. Motion & transitions</div>
+    <p class="doc-section-sub">Courtes, évidentes, jamais décoratives.</p>
+
+    <div class="motion-row">
+      <div class="motion-chip"><strong>Écrans</strong><br>fade .25s ease<br><code>opacity 0→1 + translateY(4px→0)</code></div>
+      <div class="motion-chip"><strong>Hover cartes</strong><br>all .2s ease<br><code>translateY(-1px) + shadow-md</code></div>
+      <div class="motion-chip"><strong>Hover états UI</strong><br>all .15s ease<br><code>bg, color, border-color</code></div>
+      <div class="motion-chip"><strong>Progress bar</strong><br>width .4s ease<br><code>--red → --ok si 100%</code></div>
+      <div class="motion-chip"><strong>Accordéon chevron</strong><br>transform .2s<br><code>rotate(-90deg) si collapsed</code></div>
+      <div class="motion-chip"><strong>Toast</strong><br>fade .25s<br><code>opacity 0→1</code></div>
+    </div>
+  </div>
+
+  <!-- 7. RTL -->
+  <div class="doc-section">
+    <a class="anchor" id="rtl"></a>
+    <div class="doc-section-title">7. RTL & bilingue</div>
+    <p class="doc-section-sub">La plateforme est dir="rtl" nativement. Règles à respecter.</p>
+
+    <table class="spec-table" style="background:var(--surface); border-radius:12px; overflow:hidden; border:1px solid var(--line);">
+      <thead><tr><th>Règle</th><th>Implémentation</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Document RTL</td>
+          <td><code>&lt;html lang="ar" dir="rtl"&gt;</code> — toute la structure s'inverse automatiquement</td>
+        </tr>
+        <tr>
+          <td>Texte latin dans RTL</td>
+          <td>Classe <code>.lat</code> → font-family: --f-sans. Ne pas forcer dir="ltr" sauf champs de saisie spéciaux.</td>
+        </tr>
+        <tr>
+          <td>Chiffres / stats</td>
+          <td>Classe <code>.mono</code> → --f-mono + font-feature-settings:"tnum" + letter-spacing:.01em</td>
+        </tr>
+        <tr>
+          <td>Icônes directionnelles</td>
+          <td>Flèches (→ ←) : utiliser les caractères Unicode plutôt que SVG pour l'auto-mirroring RTL</td>
+        </tr>
+        <tr>
+          <td>Bordures directionnelles</td>
+          <td>Utiliser <code>border-right</code> (côté logique start en RTL) pour les accents de paragraphe</td>
+        </tr>
+        <tr>
+          <td>margin-inline-start</td>
+          <td>Préférer les propriétés logiques CSS (margin-inline-start, padding-inline-end) aux marges physiques</td>
+        </tr>
+        <tr>
+          <td>Champs de saisie</td>
+          <td><code>text-align: right</code> pour les inputs arabes. Les inputs latins (clé de sync) gardent l'alignement gauche.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- GOOGLE FONTS IMPORT -->
+  <div class="doc-section">
+    <div class="doc-section-title">8. Import Google Fonts</div>
+    <p class="doc-section-sub">Bloc à copier dans le &lt;head&gt; de chaque page.</p>
+    <div style="background:var(--paper-2); border-radius:12px; padding:20px 24px; font-family:'Geist Mono',monospace; font-size:12.5px; color:var(--ink-2); line-height:2; overflow-x:auto;">
+      &lt;link rel="preconnect" href="https://fonts.googleapis.com"&gt;<br>
+      &lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin&gt;<br>
+      &lt;link href="https://fonts.googleapis.com/css2?family=<br>
+      &nbsp;&nbsp;Noto+Naskh+Arabic:wght@400;500;600;700<br>
+      &nbsp;&nbsp;&amp;family=Amiri:wght@400;700<br>
+      &nbsp;&nbsp;&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700<br>
+      &nbsp;&nbsp;&amp;family=Geist:wght@300;400;500;600;700<br>
+      &nbsp;&nbsp;&amp;family=Geist+Mono:wght@400;500<br>
+      &nbsp;&nbsp;&amp;display=swap" rel="stylesheet"&gt;
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Toggle dark/light live
+document.querySelector('.doc-toggle').addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+});
+</script>
+</body>
+</html>

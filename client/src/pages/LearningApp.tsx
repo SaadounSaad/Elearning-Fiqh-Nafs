@@ -29,19 +29,19 @@ const Ic = {
    COLORS & STYLES
    ═══════════════════════════════════════════════════════ */
 const C = {
-  red: "#E2001A", navy: "#003087", blue: "#0099D8",
-  black: "#1A1A1A", gray: "#666666", bg: "#F0F2F5",
-  border: "#DEE2E8", white: "#FFFFFF", cardBg: "#FFFFFF",
-  green: "#16a34a", greenBg: "#f0fdf4", gold: "#f59e0b",
+  red: "#C8341B", navy: "#24386B", blue: "#3E7FB5",
+  black: "#2B2A28", gray: "#6B6760", bg: "#F6F3EE",
+  border: "#E6E1D7", white: "#FBFAF7", cardBg: "#FBFAF7",
+  green: "#5A7D4E", greenBg: "#EBF0E4", gold: "#A06B1F",
 };
 
 const S = {
-  page: { direction: "rtl" as const, fontFamily: "'Segoe UI', Arial, 'Noto Naskh Arabic', sans-serif", minHeight: "100vh", background: C.bg, color: C.black, margin: 0, padding: 0 },
-  wrap: { maxWidth: 1200, margin: "0 auto", padding: "24px 16px" },
-  card: { background: C.white, borderRadius: 16, border: "1px solid " + C.border, boxShadow: "0 2px 8px rgba(0,0,0,0.06)" },
-  heroGrad: { background: "linear-gradient(135deg, #001a4d 0%, #003087 60%, #002266 100%)", borderRadius: 20, padding: "32px 28px", marginBottom: 24, position: "relative" as const, overflow: "hidden" },
-  btn: (bg: string, color: string) => ({ background: bg, color, border: "none", borderRadius: 12, padding: "12px 24px", fontWeight: 700, fontSize: 14, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8, fontFamily: "inherit" }),
-  badge: (bg: string, color: string) => ({ background: bg, color, fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, display: "inline-block" }),
+  page: { direction: "rtl" as const, fontFamily: "'Noto Naskh Arabic', 'Amiri', sans-serif", minHeight: "100vh", background: C.bg, color: C.black, margin: 0, padding: 0 },
+  wrap: { maxWidth: 1240, margin: "0 auto", padding: "44px 28px 96px" },
+  card: { background: C.white, borderRadius: 18, border: "1px solid " + C.border, boxShadow: "0 2px 4px rgba(43,42,40,.04), 0 8px 24px rgba(43,42,40,.06)" },
+  heroGrad: { background: "#F6F3EE", borderRadius: 16, padding: "32px 28px", marginBottom: 24, position: "relative" as const, overflow: "hidden", border: "1px solid #E6E1D7" },
+  btn: (bg: string, color: string) => ({ background: bg, color, border: "none", borderRadius: 10, padding: "10px 18px", fontWeight: 500, fontSize: 14, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8, fontFamily: "'Noto Naskh Arabic', 'Amiri', sans-serif" }),
+  badge: (bg: string, color: string) => ({ background: bg, color, fontSize: 11, fontWeight: 500, padding: "3px 10px", borderRadius: 999, display: "inline-block", fontFamily: "'Geist Mono', monospace" }),
 };
 
 const typeLabel: Record<string, string> = {
@@ -51,11 +51,85 @@ const typeLabel: Record<string, string> = {
   application: "تطبيق عملي",
 };
 const typeColor: Record<string, string> = {
-  definition: "#003087",
-  comprehension: "#0099D8",
-  key_point: "#E2001A",
-  application: "#16a34a",
+  definition: "#24386B",
+  comprehension: "#3E7FB5",
+  key_point: "#C8341B",
+  application: "#5A7D4E",
 };
+
+/* ═══════════════════════════════════════════════════════
+   SEARCH
+   ═══════════════════════════════════════════════════════ */
+
+const tabLabels: Record<string, string> = {
+  objectives: "أهداف التعلم",
+  concepts: "المفاهيم",
+  content: "المحتوى",
+  keyPoints: "النقاط الرئيسية",
+  applications: "التطبيقات",
+};
+
+interface SearchResult {
+  unit: Unit;
+  chunk: Chunk;
+  tab: string;
+  excerpt: string;
+  keyword: string;
+}
+
+function searchContent(query: string, units: Unit[], chunks: Chunk[]): SearchResult[] {
+  const q = query.trim();
+  if (q.length < 2) return [];
+  const ql = q.toLowerCase();
+  const results: SearchResult[] = [];
+
+  for (const chunk of chunks) {
+    if (chunk.type === "heading") continue;
+    const meta = chunk.meta as Record<string, unknown>;
+    const term = (meta?.term as string) ?? "";
+    const searchIn = term ? `${term}: ${chunk.content}` : chunk.content;
+    if (!searchIn.toLowerCase().includes(ql)) continue;
+
+    const unit = units.find(u => u.id === chunk.unit_id);
+    if (!unit) continue;
+
+    let tab = "content";
+    if (chunk.type === "question" && meta?.subtype === "objective") tab = "objectives";
+    else if (chunk.type === "definition") tab = "concepts";
+    else if (chunk.type === "summary") tab = "keyPoints";
+    else if (chunk.type === "text" && meta?.subtype === "practical_application") tab = "applications";
+
+    const idx = searchIn.toLowerCase().indexOf(ql);
+    const start = Math.max(0, idx - 55);
+    const end = Math.min(searchIn.length, idx + q.length + 80);
+    const excerpt = (start > 0 ? "…" : "") + searchIn.slice(start, end) + (end < searchIn.length ? "…" : "");
+
+    results.push({ unit, chunk, tab, excerpt, keyword: q });
+    if (results.length >= 30) break;
+  }
+  return results;
+}
+
+function HighlightText({ text, keyword }: { text: string; keyword: string }) {
+  if (!keyword || !text) return <>{text}</>;
+  const ql = keyword.toLowerCase();
+  const parts: React.ReactNode[] = [];
+  let last = 0;
+  const tl = text.toLowerCase();
+  let idx = tl.indexOf(ql);
+  while (idx !== -1) {
+    if (idx > last) parts.push(text.slice(last, idx));
+    parts.push(
+      <mark key={idx} style={{ background: "#F6E7E2", color: "#C8341B", padding: "0 2px", borderRadius: 3, fontWeight: 600, fontStyle: "normal" }}>
+        {text.slice(idx, idx + keyword.length)}
+      </mark>
+    );
+    last = idx + keyword.length;
+    idx = tl.indexOf(ql, last);
+  }
+  if (last < text.length) parts.push(text.slice(last));
+  return <>{parts}</>;
+}
 
 /* ═══════════════════════════════════════════════════════
    HELPERS — reconstruct per-unit tab data from chunks
@@ -135,7 +209,7 @@ function UnitCard({ unit, chunks, nav, gp, togFav, favs }: {
   const prog = gp(unit.id);
   const isFav = favs.includes(unit.id);
   const data = useMemo(() => buildTabData(unit, chunks), [unit, chunks]);
-  const lvlC: Record<string, string> = { beginner: C.blue, intermediate: C.red, advanced: C.navy };
+  const lvlC: Record<string, string> = { beginner: "#3E7FB5", intermediate: "#C8341B", advanced: "#24386B" };
   const lvlL: Record<string, string> = { beginner: "مبتدئ", intermediate: "متوسط", advanced: "متقدم" };
   const [hov, setHov] = useState(false);
   const originalId = (unit.meta as Record<string, unknown>)?.original_module_id as string ?? unit.order.toString().padStart(3, "0");
@@ -145,12 +219,12 @@ function UnitCard({ unit, chunks, nav, gp, togFav, favs }: {
       onClick={() => nav("unit", unit)}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
-      style={{ ...S.card, padding: 18, cursor: "pointer", transform: hov ? "translateY(-2px)" : "none", transition: "all .2s ease", boxShadow: hov ? "0 8px 24px rgba(0,0,0,0.12)" : "0 2px 8px rgba(0,0,0,0.06)" }}
+      style={{ ...S.card, padding: 18, cursor: "pointer", transform: hov ? "translateY(-1px)" : "none", transition: "all .2s ease", boxShadow: hov ? "0 2px 4px rgba(43,42,40,.04), 0 8px 24px rgba(43,42,40,.10)" : "0 1px 0 rgba(43,42,40,.04), 0 1px 3px rgba(43,42,40,.05)", borderColor: hov ? "#9C988F" : C.border }}
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           <span style={S.badge(C.red, "#fff")}>{originalId}</span>
-          <span style={S.badge(lvlC[data.difficultyLevel] + "22", lvlC[data.difficultyLevel])}>{lvlL[data.difficultyLevel] ?? "متوسط"}</span>
+          <span style={S.badge(lvlC[data.difficultyLevel] + "18", lvlC[data.difficultyLevel])}>{lvlL[data.difficultyLevel] ?? "متوسط"}</span>
         </div>
         <button onClick={e => { e.stopPropagation(); togFav(unit.id); }} style={{ background: "none", border: "none", cursor: "pointer", color: isFav ? "#fbbf24" : C.border, padding: 4 }}>
           {isFav ? <Ic.Star /> : <Ic.StarO />}
@@ -166,8 +240,8 @@ function UnitCard({ unit, chunks, nav, gp, togFav, favs }: {
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: C.gray, marginBottom: 4 }}>
             <span>التقدم</span><span>{prog}%</span>
           </div>
-          <div style={{ height: 5, background: "#e5e7eb", borderRadius: 4, overflow: "hidden" }}>
-            <div style={{ height: "100%", background: prog === 100 ? C.green : C.red, borderRadius: 4, width: prog + "%" }} />
+          <div style={{ height: 4, background: "#E6E1D7", borderRadius: 999, overflow: "hidden" }}>
+            <div style={{ height: "100%", background: prog === 100 ? C.green : C.red, borderRadius: 999, width: prog + "%" }} />
           </div>
         </div>
       )}
@@ -193,22 +267,22 @@ function Home({ source, units, chunks, nav, doneCount, totalConcepts, getProgres
   return (
     <div>
       <div className="la-hero" style={S.heroGrad}>
-        <div style={{ position: "absolute", top: -60, left: -60, width: 200, height: 200, borderRadius: "50%", background: "rgba(226,0,26,0.08)" }} />
+        <div style={{ position: "absolute", top: -40, left: -40, width: 160, height: 160, borderRadius: "50%", background: "rgba(200,52,27,0.04)" }} />
         <div style={{ position: "relative", zIndex: 2 }}>
           <span style={S.badge(C.red, "#fff")}>{units.length} {units[0]?.label ?? "وحدة"}</span>
-          <h1 style={{ color: "#fff", fontSize: 30, fontWeight: 800, margin: "14px 0 8px", lineHeight: 1.4 }}>{source.title}</h1>
-          {source.description && <p style={{ color: "#a0bfee", fontSize: 15, marginBottom: 22, maxWidth: 550, lineHeight: 1.8 }}>{source.description}</p>}
+          <h1 style={{ color: "#2B2A28", fontSize: 28, fontWeight: 700, margin: "14px 0 8px", lineHeight: 1.4, fontFamily: "'Source Serif 4', Georgia, serif" }}>{source.title}</h1>
+          {source.description && <p style={{ color: "#6B6760", fontSize: 15, marginBottom: 22, maxWidth: 550, lineHeight: 1.8 }}>{source.description}</p>}
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
             <button onClick={() => nav("units")} style={S.btn(C.red, "#fff")}><Ic.Play /> ابدأ التعلم</button>
-            {inProg && <button onClick={() => nav("unit", inProg)} style={S.btn("rgba(255,255,255,0.12)", "#fff")}><Ic.ArrowR /> استكمل</button>}
+            {inProg && <button onClick={() => nav("unit", inProg)} style={{ ...S.btn("#EFEAE2", "#2B2A28"), border: "1px solid #E6E1D7" }}><Ic.ArrowR /> استكمل</button>}
           </div>
         </div>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 14, marginBottom: 28 }}>
-        {[[doneCount + "/" + units.length, "وحدات مكتملة", C.red, "#fef2f2", Ic.Book], [totalConcepts, "المفاهيم الكلية", C.navy, "#eff6ff", Ic.Bulb], [favorites.length, "المفضلة", C.blue, "#f0f9ff", Ic.Star], [Math.round(doneCount / units.length * 100) + "%", "نسبة الإنجاز", C.red, "#fef2f2", Ic.Target]].map(([val, lbl, clr, bg, Icon]: any, i) => (
+        {[[doneCount + "/" + units.length, "وحدات مكتملة", C.red, "#F6E7E2", Ic.Book], [totalConcepts, "المفاهيم الكلية", C.navy, "#E7EAF2", Ic.Bulb], [favorites.length, "المفضلة", C.blue, "#E5EEF6", Ic.Star], [Math.round(doneCount / units.length * 100) + "%", "نسبة الإنجاز", C.red, "#F6E7E2", Ic.Target]].map(([val, lbl, clr, bg, Icon]: any, i) => (
           <div key={i} style={{ ...S.card, padding: 18 }}>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: bg, color: clr, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}><Icon /></div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: clr }}>{val}</div>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: bg, color: clr, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}><Icon /></div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: clr, fontFamily: "'Geist Mono', monospace" }}>{val}</div>
             <div style={{ fontSize: 12, color: C.gray, marginTop: 3 }}>{lbl}</div>
           </div>
         ))}
@@ -253,16 +327,16 @@ function UnitsList({ source, units, chunks, searchQ, setSearchQ, getProgress, to
   }, [units, filter, lvlF, favorites, getProgress]);
 
   const fBtn = (id: string, lbl: string, active: boolean) => (
-    <button key={id} onClick={() => setFilter(id)} style={{ padding: "7px 14px", borderRadius: 10, fontSize: 12, fontWeight: 600, border: active ? "none" : "1px solid " + C.border, background: active ? C.red : C.white, color: active ? "#fff" : C.gray, cursor: "pointer", fontFamily: "inherit" }}>{lbl}</button>
+    <button key={id} onClick={() => setFilter(id)} style={{ padding: "7px 14px", borderRadius: 999, fontSize: 13, fontWeight: 500, border: active ? "1px solid " + C.black : "1px solid " + C.border, background: active ? C.black : C.white, color: active ? C.white : C.gray, cursor: "pointer", fontFamily: "inherit", transition: "all .15s" }}>{lbl}</button>
   );
 
   return (
     <div>
       <div className="la-hero" style={S.heroGrad}>
-        <h1 style={{ color: "#fff", fontSize: 22, fontWeight: 800, marginBottom: 6 }}>{source.title}</h1>
-        <p style={{ color: "#a0bfee", fontSize: 13, marginBottom: 14 }}>{units.length} {units[0]?.label ?? "وحدة"}</p>
+        <h1 style={{ color: "#2B2A28", fontSize: 22, fontWeight: 700, marginBottom: 6, fontFamily: "'Source Serif 4', Georgia, serif" }}>{source.title}</h1>
+        <p style={{ color: "#6B6760", fontSize: 13, marginBottom: 14 }}>{units.length} {units[0]?.label ?? "وحدة"}</p>
         <input value={searchQ} onChange={e => setSearchQ(e.target.value)} placeholder="ابحث بالعنوان..."
-          style={{ maxWidth: 450, width: "100%", boxSizing: "border-box", background: "rgba(255,255,255,0.12)", color: "#fff", padding: "10px 16px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.2)", outline: "none", fontSize: 13, fontFamily: "inherit" }} />
+          style={{ maxWidth: 450, width: "100%", boxSizing: "border-box", background: "#FBFAF7", color: "#2B2A28", padding: "10px 16px", borderRadius: 10, border: "1px solid #E6E1D7", outline: "none", fontSize: 14, fontFamily: "inherit" }} />
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
         {[["all", "الكل"], ["favorites", "المفضلة"], ["doing", "قيد التقدم"], ["done", "مكتملة"], ["new", "لم تبدأ"]].map(([id, lbl]) => fBtn(id, lbl, filter === id))}
@@ -287,7 +361,7 @@ function UnitsList({ source, units, chunks, searchQ, setSearchQ, getProgress, to
 /* ═══════════════════════════════════════════════════════
    UNIT DETAIL PAGE
    ═══════════════════════════════════════════════════════ */
-function UnitDetail({ unit, units, chunks, nav, saveProg, progress, togFav, favorites, lastTabPerUnit, saveLastTab }: {
+function UnitDetail({ unit, units, chunks, nav, saveProg, progress, togFav, favorites, lastTabPerUnit, saveLastTab, highlightKw, onBackToSearch }: {
   unit: Unit;
   units: Unit[];
   chunks: Chunk[];
@@ -296,6 +370,8 @@ function UnitDetail({ unit, units, chunks, nav, saveProg, progress, togFav, favo
   progress: Record<string, UnitProgress>;
   togFav: (id: string) => void;
   favorites: string[];
+  highlightKw?: string;
+  onBackToSearch?: () => void;
   lastTabPerUnit: Record<string, ProgressSection>;
   saveLastTab: (unitId: string, tab: ProgressSection) => void;
 }) {
@@ -308,6 +384,16 @@ function UnitDetail({ unit, units, chunks, nav, saveProg, progress, togFav, favo
   const next = idx < units.length - 1 ? units[idx + 1] : null;
   const originalId = (unit.meta as Record<string, unknown>)?.original_module_id as string ?? unit.order.toString().padStart(3, "0");
   const lvlL: Record<string, string> = { beginner: "مبتدئ", intermediate: "متوسط", advanced: "متقدم" };
+  const hlKw = highlightKw ?? "";
+
+  useEffect(() => {
+    if (!hlKw) return;
+    const t = setTimeout(() => {
+      const el = document.querySelector("mark");
+      el?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 180);
+    return () => clearTimeout(t);
+  }, [tab, hlKw]);
 
   const tabs: [ProgressSection, string, () => React.ReactElement][] = [
     ["objectives", "أهداف التعلم", Ic.Target],
@@ -319,6 +405,14 @@ function UnitDetail({ unit, units, chunks, nav, saveProg, progress, togFav, favo
 
   return (
     <div>
+      {/* Back to search */}
+      {onBackToSearch && (
+        <button onClick={onBackToSearch} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#F6E7E2", border: "1px solid #E8C9C0", borderRadius: 8, padding: "6px 12px", fontSize: 13, color: "#8A2412", cursor: "pointer", fontFamily: "inherit", marginBottom: 12 }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          العودة إلى نتائج البحث
+          {hlKw && <mark style={{ background: "#F6E7E2", color: "#C8341B", fontWeight: 600, borderRadius: 3, padding: "0 4px", fontSize: 11 }}>{hlKw}</mark>}
+        </button>
+      )}
       {/* Breadcrumb */}
       <div style={{ display: "flex", gap: 6, fontSize: 13, color: C.gray, marginBottom: 14, flexWrap: "wrap" }}>
         <button onClick={() => nav("home")} style={{ background: "none", border: "none", color: C.gray, cursor: "pointer", fontFamily: "inherit", fontSize: 13 }}>الرئيسية</button>
@@ -332,21 +426,21 @@ function UnitDetail({ unit, units, chunks, nav, saveProg, progress, togFav, favo
       <div className="la-hero" style={S.heroGrad}>
         <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap", alignItems: "center" }}>
           <span style={S.badge(C.red, "#fff")}>{unit.label} {originalId}</span>
-          <span style={S.badge("rgba(255,255,255,0.12)", "#a0bfee")}>{lvlL[data.difficultyLevel] ?? "متوسط"}</span>
-          <button onClick={() => togFav(unit.id)} style={{ marginRight: "auto", background: "none", border: "none", cursor: "pointer", color: isFav ? "#fbbf24" : "rgba(255,255,255,0.35)", padding: 4 }}>
+          <span style={S.badge("#E7EAF2", "#24386B")}>{lvlL[data.difficultyLevel] ?? "متوسط"}</span>
+          <button onClick={() => togFav(unit.id)} style={{ marginRight: "auto", background: "none", border: "none", cursor: "pointer", color: isFav ? "#f59e0b" : "#9C988F", padding: 4 }}>
             {isFav ? <Ic.Star /> : <Ic.StarO />}
           </button>
         </div>
-        <h1 style={{ color: "#fff", fontSize: 24, fontWeight: 800, margin: "0 0 10px", lineHeight: 1.5 }}>{unit.title}</h1>
-        <div style={{ display: "flex", gap: 16, color: "#a0bfee", fontSize: 13, alignItems: "center", flexWrap: "wrap" }}>
+        <h1 style={{ color: "#2B2A28", fontSize: 24, fontWeight: 700, margin: "0 0 10px", lineHeight: 1.5, fontFamily: "'Source Serif 4', Georgia, serif" }}>{unit.title}</h1>
+        <div style={{ display: "flex", gap: 16, color: "#6B6760", fontSize: 13, alignItems: "center", flexWrap: "wrap" }}>
           <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Ic.Bulb /> {data.concepts.length} مفاهيم</span>
           <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Ic.Clock /> {data.wordCount} كلمة</span>
           {unit.media_url && (
             <button onClick={() => window.open(unit.media_url, "_blank")}
-              style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,0,0,0.15)", border: "1px solid rgba(255,0,0,0.3)", borderRadius: 8, padding: "5px 12px", cursor: "pointer" }}
-              onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,0,0,0.3)")}
-              onMouseLeave={e => (e.currentTarget.style.background = "rgba(255,0,0,0.15)")}>
-              <Ic.YouTube /><span style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>مشاهدة الفيديو</span>
+              style={{ display: "flex", alignItems: "center", gap: 6, background: "#F6E7E2", border: "1px solid #E8C9C0", borderRadius: 8, padding: "5px 12px", cursor: "pointer" }}
+              onMouseEnter={e => (e.currentTarget.style.background = "#EDD5CC")}
+              onMouseLeave={e => (e.currentTarget.style.background = "#F6E7E2")}>
+              <Ic.YouTube /><span style={{ color: "#8A2412", fontSize: 13, fontWeight: 600 }}>مشاهدة الفيديو</span>
             </button>
           )}
         </div>
@@ -357,7 +451,7 @@ function UnitDetail({ unit, units, chunks, nav, saveProg, progress, togFav, favo
         <div className="la-tabs" style={{ display: "flex", overflowX: "auto", borderBottom: "1px solid " + C.border }}>
           {tabs.map(([id, lbl, Icon]) => (
             <button key={id} onClick={() => { setTab(id); saveProg(unit.id, id); saveLastTab(unit.id, id); }}
-              style={{ display: "flex", alignItems: "center", gap: 6, padding: "13px 18px", fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", border: "none", cursor: "pointer", fontFamily: "inherit", borderBottom: tab === id ? "3px solid " + C.red : "3px solid transparent", background: tab === id ? "#fef2f2" : C.white, color: tab === id ? C.red : C.gray }}>
+              style={{ display: "flex", alignItems: "center", gap: 6, padding: "12px 16px", fontSize: 14, fontWeight: 500, whiteSpace: "nowrap", border: "none", cursor: "pointer", fontFamily: "'Noto Naskh Arabic', 'Amiri', sans-serif", borderBottom: tab === id ? "2px solid " + C.red : "2px solid transparent", background: "transparent", color: tab === id ? C.black : C.gray, marginBottom: -1, transition: "all .15s" }}>
               <Icon /><span className="la-tab-label">{lbl}</span>
               {p[id] && <span style={{ width: 7, height: 7, borderRadius: "50%", background: C.green, display: "inline-block" }} />}
             </button>
@@ -365,36 +459,36 @@ function UnitDetail({ unit, units, chunks, nav, saveProg, progress, togFav, favo
         </div>
         <div style={{ padding: "24px 28px" }}>
           {tab === "objectives" && data.objectives.map((o, i) => (
-            <div key={i} style={{ display: "flex", gap: 10, background: C.bg, borderRadius: 12, padding: 14, marginBottom: 10, border: "1px solid " + C.border }}>
-              <div style={{ width: 26, height: 26, borderRadius: 8, background: C.red, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{i + 1}</div>
-              <p style={{ color: C.black, fontSize: 14, lineHeight: 1.8, margin: 0 }}>{o}</p>
+            <div key={i} style={{ display: "flex", gap: 10, background: C.white, borderRadius: 12, padding: 14, marginBottom: 8, border: "1px solid " + C.border }}>
+              <div style={{ width: 26, height: 26, borderRadius: 8, background: "#F6E7E2", color: C.red, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 600, flexShrink: 0, fontFamily: "'Geist Mono', monospace" }}>{i + 1}</div>
+              <p style={{ color: C.black, fontSize: 14, lineHeight: 1.8, margin: 0 }}><HighlightText text={o} keyword={hlKw} /></p>
             </div>
           ))}
           {tab === "concepts" && (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 14 }}>
               {data.concepts.map((c, i) => (
-                <div key={i} style={{ borderRadius: 12, overflow: "hidden", border: "2px solid " + C.border }}>
-                  <div style={{ background: C.navy, padding: "10px 16px" }}><h4 style={{ color: "#fff", fontWeight: 700, fontSize: 14, margin: 0 }}>{c.term}</h4></div>
-                  <div style={{ padding: "12px 16px", background: C.white }}><p style={{ color: C.gray, fontSize: 13, lineHeight: 1.7, margin: 0 }}>{c.definition}</p></div>
+                <div key={i} style={{ borderRadius: 14, overflow: "hidden", border: "1px solid " + C.border }}>
+                  <div style={{ background: C.navy, padding: "10px 16px" }}><h4 style={{ color: "#fff", fontWeight: 600, fontSize: 15, margin: 0, fontFamily: "'Noto Naskh Arabic', 'Amiri', sans-serif" }}><HighlightText text={c.term} keyword={hlKw} /></h4></div>
+                  <div style={{ padding: "12px 16px", background: C.white }}><p style={{ color: C.gray, fontSize: 14, lineHeight: 1.8, margin: 0 }}><HighlightText text={c.definition} keyword={hlKw} /></p></div>
                 </div>
               ))}
             </div>
           )}
           {tab === "content" && data.sections.map((sec, i) => (
             <div key={i}>
-              <p style={{ color: C.black, fontSize: 14, lineHeight: 2, background: C.bg, borderRadius: 12, padding: 18, border: "1px solid " + C.border, marginBottom: 14 }}>{sec.content}</p>
+              <p style={{ color: C.black, fontSize: 16, lineHeight: 2.1, background: "#F6F3EE", borderRadius: 14, padding: 20, border: "1px solid " + C.border, marginBottom: 14, fontFamily: "'Noto Naskh Arabic', 'Amiri', sans-serif" }}><HighlightText text={sec.content} keyword={hlKw} /></p>
             </div>
           ))}
           {tab === "keyPoints" && data.keyPoints.map((pt, i) => (
-            <div key={i} style={{ display: "flex", gap: 10, background: "#fffbeb", borderRadius: 12, padding: 14, marginBottom: 10, border: "1px solid #fde68a" }}>
-              <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.red, marginTop: 8, flexShrink: 0 }} />
-              <p style={{ color: C.black, fontSize: 14, lineHeight: 1.8, margin: 0 }}>{pt}</p>
+            <div key={i} style={{ display: "flex", gap: 10, background: "#F4EBD8", borderRadius: 14, padding: 14, marginBottom: 10, border: "1px solid #E8D9C0" }}>
+              <div style={{ width: 7, height: 7, borderRadius: "50%", background: C.gold, marginTop: 9, flexShrink: 0 }} />
+              <p style={{ color: C.black, fontSize: 14, lineHeight: 1.8, margin: 0 }}><HighlightText text={pt} keyword={hlKw} /></p>
             </div>
           ))}
           {tab === "applications" && data.applications.map((a, i) => (
-            <div key={i} style={{ display: "flex", gap: 10, background: C.greenBg, borderRadius: 12, padding: 14, marginBottom: 10, border: "1px solid #bbf7d0" }}>
+            <div key={i} style={{ display: "flex", gap: 10, background: "#EBF0E4", borderRadius: 14, padding: 14, marginBottom: 10, border: "1px solid #C5D9BC" }}>
               <div style={{ width: 26, height: 26, borderRadius: "50%", background: C.green, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Ic.Check /></div>
-              <p style={{ color: C.black, fontSize: 14, lineHeight: 1.8, margin: 0 }}>{a}</p>
+              <p style={{ color: C.black, fontSize: 14, lineHeight: 1.8, margin: 0 }}><HighlightText text={a} keyword={hlKw} /></p>
             </div>
           ))}
         </div>
@@ -403,10 +497,10 @@ function UnitDetail({ unit, units, chunks, nav, saveProg, progress, togFav, favo
       {/* Navigation */}
       <div className="la-detail-nav" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         {prev ? <button onClick={() => { nav("unit", prev); setTab("objectives"); }} style={{ ...S.btn(C.white, C.navy), border: "1px solid " + C.border }}>السابق <Ic.ArrowR /></button> : <div />}
-        <button onClick={() => nav("quiz_direct", unit)} style={{ ...S.btn(C.gold, C.navy), fontWeight: 700, fontSize: 15, padding: "10px 24px", borderRadius: 10, boxShadow: "0 2px 8px rgba(0,0,0,0.12)", display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 18 }}>📝</span> ابدأ الاختبار
+        <button onClick={() => nav("quiz_direct", unit)} style={{ ...S.btn("#F4EBD8", C.gold), fontWeight: 600, fontSize: 14, padding: "10px 24px", borderRadius: 10, border: "1px solid #E8D9C0", display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 16 }}>📝</span> ابدأ الاختبار
         </button>
-        {next ? <button onClick={() => { nav("unit", next); setTab("objectives"); }} style={S.btn(C.red, "#fff")}><Ic.ArrowL /> التالي</button> : <div />}
+        {next ? <button onClick={() => { nav("unit", next); setTab("objectives"); }} style={{ ...S.btn(C.red, "#fff"), fontWeight: 500 }}><Ic.ArrowL /> التالي</button> : <div />}
       </div>
     </div>
   );
@@ -463,8 +557,8 @@ function Quiz({ units, quizQuestions, nav, quizScores, saveQuiz, directUnit }: {
   if (!qUnit) return (
     <div>
       <div className="la-hero" style={S.heroGrad}>
-        <h1 style={{ color: "#fff", fontSize: 22, fontWeight: 800, marginBottom: 6 }}>الاختبارات</h1>
-        <p style={{ color: "#a0bfee", fontSize: 13 }}>اختبر فهمك — اختر وحدة</p>
+        <h1 style={{ color: "#2B2A28", fontSize: 22, fontWeight: 700, fontFamily: "'Source Serif 4', Georgia, serif", marginBottom: 6 }}>الاختبارات</h1>
+        <p style={{ color: "#6B6760", fontSize: 13 }}>اختبر فهمك — اختر وحدة</p>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 14 }}>
         {units.map(u => {
@@ -473,8 +567,8 @@ function Quiz({ units, quizQuestions, nav, quizScores, saveQuiz, directUnit }: {
             <div key={u.id} style={{ ...S.card, padding: 18, border: hasDedicated(u.id) ? "2px solid " + C.red : "1px solid " + C.border }}>
               <div style={{ display: "flex", gap: 6, marginBottom: 8, flexWrap: "wrap" }}>
                 <span style={S.badge(C.red, "#fff")}>{originalId}</span>
-                {hasDedicated(u.id) && <span style={S.badge("#fef2f2", C.red)}>اختبار مخصص</span>}
-                {quizScores[u.id] != null && <span style={S.badge(quizScores[u.id] >= 70 ? "#dcfce7" : "#fef2f2", quizScores[u.id] >= 70 ? "#166534" : "#991b1b")}>{quizScores[u.id]}%</span>}
+                {hasDedicated(u.id) && <span style={S.badge("#F6E7E2", C.red)}>اختبار مخصص</span>}
+                {quizScores[u.id] != null && <span style={S.badge(quizScores[u.id] >= 70 ? "#EBF0E4" : "#F6E7E2", quizScores[u.id] >= 70 ? "#5A7D4E" : "#8A2412")}>{quizScores[u.id]}%</span>}
               </div>
               <h3 style={{ fontWeight: 700, color: C.black, fontSize: 13, marginBottom: 8, lineHeight: 1.6, height: 42, overflow: "hidden" }}>{u.title}</h3>
               <p style={{ fontSize: 12, color: C.gray, marginBottom: 12 }}>{quizQuestions.filter(q => q.unit_id === u.id).length || "—"} أسئلة</p>
@@ -495,11 +589,11 @@ function Quiz({ units, quizQuestions, nav, quizScores, saveQuiz, directUnit }: {
           <div style={{ display: "inline-block", background: C.red, color: "#fff", fontSize: 11, fontWeight: 700, padding: "4px 14px", borderRadius: 20, marginBottom: 16 }}>
             {qUnit.label} {(qUnit.meta as Record<string, unknown>)?.original_module_id as string}
           </div>
-          <h1 style={{ color: "#fff", fontSize: 22, fontWeight: 800, margin: "0 0 10px", lineHeight: 1.6 }}>{qUnit.title}</h1>
-          <p style={{ color: "#a0bfee", fontSize: 14, margin: "0 0 24px", lineHeight: 1.7 }}>{qs.length} سؤالاً</p>
+          <h1 style={{ color: "#2B2A28", fontSize: 22, fontWeight: 700, fontFamily: "'Source Serif 4', Georgia, serif", margin: "0 0 10px", lineHeight: 1.6 }}>{qUnit.title}</h1>
+          <p style={{ color: "#6B6760", fontSize: 14, margin: "0 0 24px", lineHeight: 1.7 }}>{qs.length} سؤالاً</p>
           <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 8, marginBottom: 24 }}>
             {Object.entries(typeLabel).map(([k, v]) => (
-              <span key={k} style={{ fontSize: 11, padding: "3px 10px", borderRadius: 8, background: typeColor[k] + "22", color: "#fff", fontWeight: 600, border: "1px solid " + (typeColor[k] ?? "#999") + "44" }}>{v}</span>
+              <span key={k} style={{ fontSize: 11, padding: "3px 10px", borderRadius: 999, background: typeColor[k] + "18", color: typeColor[k], fontWeight: 500, border: "1px solid " + (typeColor[k] ?? "#999") + "33", fontFamily: "'Geist Mono', monospace" }}>{v}</span>
             ))}
           </div>
           <button onClick={() => setStarted(true)} style={{ background: C.red, color: "#fff", border: "none", borderRadius: 12, padding: "14px 40px", fontSize: 16, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
@@ -532,8 +626,8 @@ function Quiz({ units, quizQuestions, nav, quizScores, saveQuiz, directUnit }: {
 
   return (
     <div style={{ maxWidth: 560, margin: "0 auto" }}>
-      <div style={{ height: 6, background: "#e5e7eb", borderRadius: 4, overflow: "hidden", marginBottom: 20 }}>
-        <div style={{ height: "100%", background: C.red, borderRadius: 4, width: ((qi + 1) / qs.length * 100) + "%", transition: "width .3s" }} />
+      <div style={{ height: 4, background: "#E6E1D7", borderRadius: 999, overflow: "hidden", marginBottom: 20 }}>
+        <div style={{ height: "100%", background: C.red, borderRadius: 999, width: ((qi + 1) / qs.length * 100) + "%", transition: "width .3s" }} />
       </div>
       <div style={{ ...S.card, padding: "24px 28px" }}>
         <h2 style={{ fontSize: 16, fontWeight: 700, color: C.black, marginBottom: 20, lineHeight: 1.7 }}>{q.question}</h2>
@@ -541,14 +635,14 @@ function Quiz({ units, quizQuestions, nav, quizScores, saveQuiz, directUnit }: {
           const isC = i === q.correct, isS = i === sel;
           let bg = C.white, brd = C.border, clr = C.black, fw: number | string = 400;
           if (ans) {
-            if (isC) { bg = C.greenBg; brd = C.green; clr = "#166534"; fw = 600; }
-            else if (isS) { bg = "#fef2f2"; brd = "#ef4444"; clr = "#991b1b"; fw = 600; }
-            else { clr = "#aaa"; }
-          } else if (isS) { bg = "#eff6ff"; brd = C.navy; clr = C.navy; fw = 600; }
+            if (isC) { bg = "#EBF0E4"; brd = C.green; clr = "#3A5C30"; fw = 600; }
+            else if (isS) { bg = "#F6E7E2"; brd = C.red; clr = "#8A2412"; fw = 600; }
+            else { clr = "#9C988F"; }
+          } else if (isS) { bg = "#E5EEF6"; brd = C.blue; clr = C.navy; fw = 600; }
           return (
             <button key={i} onClick={() => pick(i)} disabled={ans}
-              style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "right", padding: 14, marginBottom: 8, borderRadius: 12, border: "2px solid " + brd, background: bg, color: clr, cursor: ans ? "default" : "pointer", fontSize: 14, lineHeight: 1.7, fontFamily: "inherit", boxSizing: "border-box", fontWeight: fw, transition: "all .2s ease" }}>
-              <span style={{ minWidth: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, background: ans ? (isC ? C.green : isS ? "#ef4444" : "#e5e7eb") : (isS ? C.navy : "#e5e7eb"), color: ans ? ((isC || isS) ? "#fff" : "#999") : (isS ? "#fff" : "#999") }}>
+              style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "right", padding: 14, marginBottom: 8, borderRadius: 12, border: "1px solid " + brd, background: bg, color: clr, cursor: ans ? "default" : "pointer", fontSize: 14, lineHeight: 1.7, fontFamily: "inherit", boxSizing: "border-box", fontWeight: fw, transition: "all .2s ease" }}>
+              <span style={{ minWidth: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 600, fontFamily: "'Geist Mono', monospace", background: ans ? (isC ? C.green : isS ? C.red : "#EFEAE2") : (isS ? C.blue : "#EFEAE2"), color: ans ? ((isC || isS) ? "#fff" : "#9C988F") : (isS ? "#fff" : "#9C988F") }}>
                 {ans ? (isC ? "✓" : isS ? "✗" : String.fromCharCode(1571 + i)) : String.fromCharCode(1571 + i)}
               </span>
               <span style={{ flex: 1 }}>{opt}</span>
@@ -556,8 +650,8 @@ function Quiz({ units, quizQuestions, nav, quizScores, saveQuiz, directUnit }: {
           );
         })}
         {ans && q.explanation && (
-          <div style={{ background: sel === q.correct ? "#f0fdf4" : "#fffbeb", borderRadius: 12, padding: "14px 16px", marginTop: 16, borderRight: "4px solid " + (sel === q.correct ? C.green : "#f59e0b") }}>
-            <p style={{ fontSize: 12, fontWeight: 700, color: sel === q.correct ? C.green : "#b45309", margin: "0 0 6px" }}>{sel === q.correct ? "إجابة صحيحة! ✓" : "إجابة خاطئة — التصحيح:"}</p>
+          <div style={{ background: sel === q.correct ? "#EBF0E4" : "#F4EBD8", borderRadius: 12, padding: "14px 16px", marginTop: 16, borderRight: "3px solid " + (sel === q.correct ? C.green : C.gold) }}>
+            <p style={{ fontSize: 12, fontWeight: 600, color: sel === q.correct ? C.green : C.gold, margin: "0 0 6px" }}>{sel === q.correct ? "إجابة صحيحة! ✓" : "إجابة خاطئة — التصحيح:"}</p>
             <p style={{ fontSize: 13, color: C.black, margin: 0, lineHeight: 1.8 }}>{q.explanation}</p>
           </div>
         )}
@@ -591,8 +685,8 @@ function ProgressPage({ units, doneCount, getProgress, quizScores, favorites, to
   return (
     <div>
       <div className="la-hero" style={S.heroGrad}>
-        <h1 style={{ color: "#fff", fontSize: 22, fontWeight: 800, marginBottom: 6 }}>لوحة التقدم</h1>
-        <p style={{ color: "#a0bfee", fontSize: 13 }}>تتبع مسيرتك التعليمية</p>
+        <h1 style={{ color: "#2B2A28", fontSize: 22, fontWeight: 700, fontFamily: "'Source Serif 4', Georgia, serif", marginBottom: 6 }}>لوحة التقدم</h1>
+        <p style={{ color: "#6B6760", fontSize: 13 }}>تتبع مسيرتك التعليمية</p>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 14, marginBottom: 20 }}>
         {[[tot + "%", "نسبة الإنجاز", doneCount + " من " + units.length, C.red], [avgQ + "%", "متوسط الاختبارات", Object.keys(quizScores).length + " اختبار", C.navy], [totalConcepts, "المفاهيم", "مفهوم", C.blue], [favorites.length, "المفضلة", "وحدة", C.red]].map(([v, l, s, c], i) => (
@@ -605,8 +699,8 @@ function ProgressPage({ units, doneCount, getProgress, quizScores, favorites, to
       </div>
       <div style={{ ...S.card, padding: 20, marginBottom: 20 }}>
         <h3 style={{ fontWeight: 700, color: C.black, marginBottom: 12, fontSize: 15 }}>التقدم العام</h3>
-        <div style={{ height: 12, background: "#e5e7eb", borderRadius: 8, overflow: "hidden", marginBottom: 8 }}>
-          <div style={{ height: "100%", background: C.red, borderRadius: 8, width: tot + "%", transition: "width .7s" }} />
+        <div style={{ height: 8, background: "#E6E1D7", borderRadius: 999, overflow: "hidden", marginBottom: 8 }}>
+          <div style={{ height: "100%", background: C.red, borderRadius: 999, width: tot + "%", transition: "width .7s" }} />
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: C.gray }}>
           <span>{doneCount} مكتمل</span><span>{units.length - doneCount} متبقي</span>
@@ -617,8 +711,8 @@ function ProgressPage({ units, doneCount, getProgress, quizScores, favorites, to
         {[["مبتدئ", lvls.beginner ?? 0, C.blue], ["متوسط", lvls.intermediate ?? 0, C.red], ["متقدم", lvls.advanced ?? 0, C.navy]].map(([l, n, c], i) => (
           <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
             <span style={{ fontSize: 12, color: C.gray, width: 42, textAlign: "right" }}>{l}</span>
-            <div style={{ flex: 1, height: 8, background: "#e5e7eb", borderRadius: 6, overflow: "hidden" }}>
-              <div style={{ height: "100%", borderRadius: 6, background: c as string, width: ((n as number) / units.length * 100) + "%" }} />
+            <div style={{ flex: 1, height: 4, background: "#E6E1D7", borderRadius: 999, overflow: "hidden" }}>
+              <div style={{ height: "100%", borderRadius: 999, background: c as string, width: ((n as number) / units.length * 100) + "%" }} />
             </div>
             <span style={{ fontSize: 12, fontWeight: 700, color: C.black, width: 26 }}>{n}</span>
           </div>
@@ -675,6 +769,7 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchQ, setSearchQ] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchContext, setSearchContext] = useState<{ keyword: string; tab: ProgressSection } | null>(null);
   const [progress, setProgress] = useLocalStorage<Record<string, UnitProgress>>(`learning:${source.id}:progress`, {});
   const [favorites, setFavorites] = useLocalStorage<string[]>(`learning:${source.id}:favorites`, []);
   const [quizScores, setQuizScores] = useLocalStorage<Record<string, number>>(`learning:${source.id}:quizScores`, {});
@@ -688,6 +783,23 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
     if (u !== undefined) { setSelUnit(u); setLastUnitId(u.id); }
     setMenuOpen(false); setSearchOpen(false);
   }, [setPage, setLastUnitId]);
+
+  const navFromSearch = useCallback((u: Unit, tab: ProgressSection, keyword: string) => {
+    setPage("unit");
+    setSelUnit(u);
+    setLastUnitId(u.id);
+    setLastTabPerUnit(prev => ({ ...prev, [u.id]: tab }));
+    setSearchContext({ keyword, tab });
+    setMenuOpen(false);
+    setSearchOpen(false);
+  }, [setPage, setLastUnitId, setLastTabPerUnit]);
+
+  const clearSearch = useCallback(() => {
+    setSearchQ("");
+    setSearchContext(null);
+    setSearchOpen(false);
+  }, []);
+
   const saveProg = useCallback((uid: string, sec: ProgressSection) => setProgress(p => ({ ...p, [uid]: { ...(p[uid] ?? {}), [sec]: true } })), []);
   const togFav = useCallback((uid: string) => setFavorites(f => f.includes(uid) ? f.filter(x => x !== uid) : [...f, uid]), []);
   const saveQuiz = useCallback((uid: string, sc: number) => setQuizScores(q => ({ ...q, [uid]: sc })), []);
@@ -698,6 +810,8 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
 
   const doneCount = useMemo(() => units.filter(u => getProgress(u.id) === 100).length, [units, getProgress]);
   const totalConcepts = useMemo(() => chunks.filter(c => c.type === "definition").length, [chunks]);
+
+  const searchResults = useMemo(() => searchContent(searchQ, units, chunks), [searchQ, units, chunks]);
 
   const filtered = useMemo(() => {
     if (!searchQ.trim()) return units;
@@ -716,42 +830,79 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
   return (
     <div style={S.page}>
       {/* NAVBAR */}
-      <nav style={{ position: "sticky", top: 0, zIndex: 50, background: C.navy, boxShadow: "0 4px 20px rgba(0,0,0,0.25)" }}>
-        <div style={{ height: 3, background: C.red }} />
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 16px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 58 }}>
-          <button onClick={() => nav("home")} style={{ display: "flex", alignItems: "center", gap: 10, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-            <div style={{ width: 36, height: 36, borderRadius: 10, background: C.red, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ color: "#fff", fontWeight: 800, fontSize: 17 }}>{source.title.charAt(0)}</span>
+      <nav style={{ position: "sticky", top: 0, zIndex: 50, background: "#FBFAF7", borderBottom: "1px solid #E6E1D7" }}>
+        <div style={{ height: 2, background: "#C8341B" }} />
+        <div style={{ maxWidth: 1240, margin: "0 auto", padding: "0 20px", display: "flex", alignItems: "center", gap: 20, height: 58 }}>
+          <button onClick={() => nav("home")} style={{ display: "flex", alignItems: "center", gap: 10, background: "none", border: "none", cursor: "pointer", padding: 0, flexShrink: 0 }}>
+            <div style={{ width: 30, height: 30, borderRadius: 8, background: "#C8341B", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ color: "#fff", fontWeight: 700, fontSize: 16, fontFamily: "'Source Serif 4', Georgia, serif" }}>{source.title.charAt(0)}</span>
             </div>
-            <div>
-              <div style={{ color: "#fff", fontWeight: 700, fontSize: 14 }}>{source.title}</div>
-              <div style={{ color: C.blue, fontSize: 10 }}>{units.length} {units[0]?.label ?? "وحدة"}</div>
-            </div>
+            <span style={{ fontFamily: "'Source Serif 4', Georgia, serif", fontWeight: 600, fontSize: 16, color: "#2B2A28" }}>{source.title}</span>
           </button>
-          <div className="desk-nav" style={{ display: "flex", gap: 4 }}>
+          <div className="desk-nav" style={{ display: "flex", gap: 2, marginRight: "auto" }}>
             {navItems.map(([id, lbl, Icon]) => (
-              <button key={id} onClick={() => nav(id)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", borderRadius: 8, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 600, background: page === id ? C.red : "transparent", color: page === id ? "#fff" : "#a0bfee" }}>
+              <button key={id} onClick={() => nav(id)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 7, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 500, background: page === id ? "#2B2A28" : "transparent", color: page === id ? "#FBFAF7" : "#6B6760", transition: "all .15s" }}>
                 <Icon /><span>{lbl}</span>
               </button>
             ))}
           </div>
           <div style={{ display: "flex", gap: 4 }}>
-            <button onClick={() => setSearchOpen(!searchOpen)} style={{ padding: 8, background: "none", border: "none", cursor: "pointer", color: "#a0bfee" }}><Ic.Search /></button>
-            <button className="mob-btn" onClick={() => setMenuOpen(!menuOpen)} style={{ padding: 8, background: "none", border: "none", cursor: "pointer", color: "#a0bfee", display: "none" }}>{menuOpen ? <Ic.X /> : <Ic.Menu />}</button>
+            <button onClick={() => setSearchOpen(!searchOpen)} style={{ padding: 8, background: "none", border: "none", cursor: "pointer", color: "#6B6760" }}><Ic.Search /></button>
+            <button className="mob-btn" onClick={() => setMenuOpen(!menuOpen)} style={{ padding: 8, background: "none", border: "none", cursor: "pointer", color: "#6B6760", display: "none" }}>{menuOpen ? <Ic.X /> : <Ic.Menu />}</button>
           </div>
         </div>
         {searchOpen && (
-          <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", background: "#002266", padding: "10px 16px" }}>
-            <div style={{ maxWidth: 500, margin: "0 auto" }}>
-              <input autoFocus value={searchQ} onChange={e => setSearchQ(e.target.value)} onKeyDown={e => { if (e.key === "Enter") nav("units"); }}
-                placeholder="ابحث في الوحدات..." style={{ width: "100%", boxSizing: "border-box", background: "rgba(255,255,255,0.12)", color: "#fff", padding: "10px 16px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.2)", outline: "none", fontSize: 14, fontFamily: "inherit" }} />
+          <div style={{ borderTop: "1px solid #E6E1D7", background: "#FBFAF7", padding: "12px 20px" }}>
+            <div style={{ maxWidth: 640, margin: "0 auto" }}>
+              {/* Input */}
+              <div style={{ display: "flex", alignItems: "center", gap: 10, background: "#FBFAF7", border: "1px solid #E6E1D7", borderRadius: 10, padding: "8px 14px", marginBottom: searchQ.trim().length >= 2 ? 10 : 0 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9C988F" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                <input autoFocus value={searchQ}
+                  onChange={e => { setSearchQ(e.target.value); setSearchContext(null); }}
+                  onKeyDown={e => { if (e.key === "Escape") clearSearch(); }}
+                  placeholder="ابحث في محتوى الوحدات..." style={{ flex: 1, border: "none", outline: "none", background: "transparent", color: "#2B2A28", fontSize: 14, fontFamily: "inherit" }} />
+                {searchQ && (
+                  <button onClick={clearSearch} style={{ background: "none", border: "none", cursor: "pointer", color: "#9C988F", fontSize: 18, lineHeight: 1, padding: "0 2px" }} title="مسح">✕</button>
+                )}
+              </div>
+              {/* Results */}
+              {searchQ.trim().length >= 2 && (
+                <div style={{ maxHeight: 400, overflowY: "auto", display: "flex", flexDirection: "column", gap: 6, paddingBottom: 4 }}>
+                  {searchResults.length === 0 ? (
+                    <div style={{ textAlign: "center", color: "#9C988F", fontSize: 13, padding: "20px 0", fontFamily: "'Geist', sans-serif" }}>لا توجد نتائج لـ «{searchQ}»</div>
+                  ) : (
+                    <>
+                      <div style={{ fontSize: 11, color: "#9C988F", fontFamily: "'Geist', sans-serif", marginBottom: 4, paddingRight: 2 }}>{searchResults.length} نتيجة</div>
+                      {searchResults.map((r, i) => {
+                        const origId = (r.unit.meta as Record<string, unknown>)?.original_module_id as string ?? String(r.unit.order).padStart(3, "0");
+                        return (
+                          <div key={i}
+                            onClick={() => navFromSearch(r.unit, r.tab as ProgressSection, r.keyword)}
+                            style={{ background: "#F6F3EE", border: "1px solid #E6E1D7", borderRadius: 12, padding: "12px 14px", cursor: "pointer", transition: "border-color .15s" }}
+                            onMouseEnter={e => (e.currentTarget.style.borderColor = "#9C988F")}
+                            onMouseLeave={e => (e.currentTarget.style.borderColor = "#E6E1D7")}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
+                              <span style={S.badge(C.red, "#fff")}>{origId}</span>
+                              <span style={{ fontSize: 13, fontWeight: 600, color: "#2B2A28", flex: 1 }}>{r.unit.title}</span>
+                              <span style={{ fontSize: 11, color: "#9C988F", fontFamily: "'Geist', sans-serif", background: "#EFEAE2", borderRadius: 6, padding: "2px 7px" }}>{tabLabels[r.tab]}</span>
+                            </div>
+                            <p style={{ fontSize: 13, color: "#6B6760", lineHeight: 1.7, margin: 0, direction: "rtl" }}>
+                              <HighlightText text={r.excerpt} keyword={r.keyword} />
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}
         {menuOpen && (
-          <div className="mob-menu" style={{ borderTop: "1px solid rgba(255,255,255,0.1)", background: "#002266", padding: "8px 16px" }}>
+          <div className="mob-menu" style={{ borderTop: "1px solid #E6E1D7", background: "#FBFAF7", padding: "8px 20px" }}>
             {navItems.map(([id, lbl, Icon]) => (
-              <button key={id} onClick={() => nav(id)} style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 14px", borderRadius: 8, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600, background: page === id ? C.red : "transparent", color: page === id ? "#fff" : "#a0bfee", marginBottom: 4, textAlign: "right" }}>
+              <button key={id} onClick={() => nav(id)} style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 14px", borderRadius: 8, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 500, background: page === id ? "#2B2A28" : "transparent", color: page === id ? "#FBFAF7" : "#6B6760", marginBottom: 4, textAlign: "right" }}>
                 <Icon />{lbl}
               </button>
             ))}
@@ -763,21 +914,21 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
       <main style={S.wrap}>
         {page === "home" && <Home source={source} units={units} chunks={chunks} {...sp} />}
         {page === "units" && <UnitsList source={source} units={filtered} chunks={chunks} searchQ={searchQ} setSearchQ={setSearchQ} {...sp} />}
-        {page === "unit" && selUnit && <UnitDetail unit={selUnit} units={units} chunks={chunks} {...sp} lastTabPerUnit={lastTabPerUnit} saveLastTab={saveLastTab} />}
+        {page === "unit" && selUnit && <UnitDetail unit={selUnit} units={units} chunks={chunks} {...sp} lastTabPerUnit={lastTabPerUnit} saveLastTab={saveLastTab} highlightKw={searchContext?.keyword} onBackToSearch={searchContext ? () => setSearchOpen(true) : undefined} />}
         {page === "quiz" && <Quiz units={units} quizQuestions={quiz_questions} nav={nav} quizScores={quizScores} saveQuiz={saveQuiz} />}
         {page === "quiz_direct" && selUnit && <Quiz units={units} quizQuestions={quiz_questions} nav={nav} quizScores={quizScores} saveQuiz={saveQuiz} directUnit={selUnit} />}
         {page === "progress" && <ProgressPage units={units} {...sp} />}
       </main>
 
       {/* FOOTER */}
-      <footer style={{ background: C.navy, color: "#fff", marginTop: 48, padding: "24px 16px", textAlign: "center" }}>
+      <footer style={{ background: "#2B2A28", color: "#EDE8DE", marginTop: 48, padding: "24px 16px", textAlign: "center", borderTop: "1px solid #35322C" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 8 }}>
-          <div style={{ width: 28, height: 28, borderRadius: 8, background: C.red, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ color: "#fff", fontWeight: 800, fontSize: 13 }}>{source.title.charAt(0)}</span>
+          <div style={{ width: 28, height: 28, borderRadius: 8, background: "#C8341B", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ color: "#fff", fontWeight: 700, fontSize: 13, fontFamily: "'Source Serif 4', Georgia, serif" }}>{source.title.charAt(0)}</span>
           </div>
-          <span style={{ fontWeight: 700, fontSize: 14 }}>{source.title}</span>
+          <span style={{ fontWeight: 600, fontSize: 14, fontFamily: "'Source Serif 4', Georgia, serif" }}>{source.title}</span>
         </div>
-        <p style={{ color: "#7ba3d4", fontSize: 12, margin: 0 }}>© {new Date().getFullYear()} — منصة تعليمية — {units.length} {units[0]?.label ?? "وحدة"}</p>
+        <p style={{ color: "#7A7468", fontSize: 12, margin: 0 }}>© {new Date().getFullYear()} — منصة تعليمية — {units.length} {units[0]?.label ?? "وحدة"}</p>
       </footer>
 
       <style>{`

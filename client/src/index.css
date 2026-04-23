@@ -43,6 +43,34 @@
 }
 
 :root {
+  /* ── Rahiq design tokens ── */
+  --paper:       #F6F3EE;
+  --paper-2:     #EFEAE2;
+  --surface:     #FBFAF7;
+  --ink:         #2B2A28;
+  --ink-2:       #6B6760;
+  --ink-3:       #9C988F;
+  --line:        #E6E1D7;
+  --line-soft:   #EFEAE2;
+  --r-red:       #C8341B;
+  --r-red-ink:   #8A2412;
+  --r-red-wash:  #F6E7E2;
+  --r-navy:      #24386B;
+  --r-navy-ink:  #16224A;
+  --r-navy-wash: #E7EAF2;
+  --r-blue:      #3E7FB5;
+  --r-blue-wash: #E5EEF6;
+  --r-ok:        #5A7D4E;
+  --r-ok-wash:   #EBF0E4;
+  --r-amber:     #A06B1F;
+  --r-amber-wash:#F4EBD8;
+  --shadow-sm:   0 1px 0 rgba(43,42,40,.04), 0 1px 3px rgba(43,42,40,.05);
+  --shadow-md:   0 2px 4px rgba(43,42,40,.04), 0 8px 24px rgba(43,42,40,.06);
+  --f-sans:      'Geist', 'Inter', system-ui, sans-serif;
+  --f-serif:     'Source Serif 4', Georgia, serif;
+  --f-ar:        'Noto Naskh Arabic', 'Amiri', sans-serif;
+  --f-mono:      'Geist Mono', 'SF Mono', Consolas, monospace;
+
   --primary: var(--color-blue-700);
   --primary-foreground: var(--color-blue-50);
   --sidebar-primary: var(--color-blue-600);
