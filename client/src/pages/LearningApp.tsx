@@ -23,6 +23,7 @@ const Ic = {
   Menu: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap={sl} strokeLinejoin={sl}><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg>,
   X: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap={sl} strokeLinejoin={sl}><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>,
   YouTube: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>,
+  NoteEdit: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap={sl} strokeLinejoin={sl}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
 };
 
 /* ═══════════════════════════════════════════════════════
@@ -195,6 +196,15 @@ const PROGRESS_SECTIONS = ["objectives", "concepts", "content", "keyPoints", "ap
 type ProgressSection = typeof PROGRESS_SECTIONS[number];
 type UnitProgress = Partial<Record<ProgressSection, boolean>>;
 
+interface Note {
+  id: string;
+  text: string;
+  tab: ProgressSection;
+  timestamp: number;
+  type: "selection" | "manual";
+  source?: string;
+}
+
 /* ═══════════════════════════════════════════════════════
    UNIT CARD
    ═══════════════════════════════════════════════════════ */
@@ -252,7 +262,7 @@ function UnitCard({ unit, chunks, nav, gp, togFav, favs }: {
 /* ═══════════════════════════════════════════════════════
    HOME PAGE
    ═══════════════════════════════════════════════════════ */
-function Home({ source, units, chunks, nav, doneCount, totalConcepts, getProgress, favorites, togFav }: {
+function Home({ source, units, chunks, nav, doneCount, totalConcepts, getProgress, favorites, togFav, lastUnitId, scrollPositions, totalNotes }: {
   source: SourceFile["source"];
   units: Unit[];
   chunks: Chunk[];
@@ -262,10 +272,24 @@ function Home({ source, units, chunks, nav, doneCount, totalConcepts, getProgres
   getProgress: (id: string) => number;
   favorites: string[];
   togFav: (id: string) => void;
+  lastUnitId: string | null;
+  scrollPositions: Record<string, number>;
+  totalNotes: number;
 }) {
   const inProg = units.find(u => { const p = getProgress(u.id); return p > 0 && p < 100; });
+  const lastUnit = lastUnitId ? units.find(u => u.id === lastUnitId) : null;
+  const lastScrollY = lastUnitId ? (scrollPositions[lastUnitId] ?? 0) : 0;
   return (
     <div>
+      {lastUnit && lastScrollY > 200 && (
+        <div style={{ ...S.card, padding: "16px 20px", marginBottom: 20, display: "flex", alignItems: "center", gap: 14, background: "#FBFAF7", border: "1px solid #E6E1D7", borderRight: "4px solid #C8341B" }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontSize: 11, color: C.gray, margin: "0 0 3px", fontFamily: "'Geist', sans-serif" }}>متابعة القراءة</p>
+            <p style={{ fontSize: 14, fontWeight: 600, color: C.black, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{lastUnit.title}</p>
+          </div>
+          <button onClick={() => nav("unit", lastUnit)} style={{ ...S.btn(C.red, "#fff"), flexShrink: 0, padding: "8px 16px", fontSize: 13 }}>استأنف <Ic.ArrowL /></button>
+        </div>
+      )}
       <div className="la-hero" style={S.heroGrad}>
         <div style={{ position: "absolute", top: -40, left: -40, width: 160, height: 160, borderRadius: "50%", background: "rgba(200,52,27,0.04)" }} />
         <div style={{ position: "relative", zIndex: 2 }}>
@@ -361,7 +385,7 @@ function UnitsList({ source, units, chunks, searchQ, setSearchQ, getProgress, to
 /* ═══════════════════════════════════════════════════════
    UNIT DETAIL PAGE
    ═══════════════════════════════════════════════════════ */
-function UnitDetail({ unit, units, chunks, nav, saveProg, progress, togFav, favorites, lastTabPerUnit, saveLastTab, highlightKw, onBackToSearch }: {
+function UnitDetail({ unit, units, chunks, nav, saveProg, progress, togFav, favorites, lastTabPerUnit, saveLastTab, highlightKw, onBackToSearch, notes, saveNote, deleteNote, savedScrollY, saveScrollPos }: {
   unit: Unit;
   units: Unit[];
   chunks: Chunk[];
@@ -374,8 +398,13 @@ function UnitDetail({ unit, units, chunks, nav, saveProg, progress, togFav, favo
   onBackToSearch?: () => void;
   lastTabPerUnit: Record<string, ProgressSection>;
   saveLastTab: (unitId: string, tab: ProgressSection) => void;
+  notes: Note[];
+  saveNote: (unitId: string, note: Note) => void;
+  deleteNote: (unitId: string, noteId: string) => void;
+  savedScrollY?: number;
+  saveScrollPos: (unitId: string, pos: number) => void;
 }) {
-  const [tab, setTab] = useState<ProgressSection>(lastTabPerUnit[unit.id] ?? "objectives");
+  const [tab, setTab] = useState<ProgressSection | "notes">(lastTabPerUnit[unit.id] ?? "objectives");
   const isFav = favorites.includes(unit.id);
   const p = progress[unit.id] ?? {};
   const data = useMemo(() => buildTabData(unit, chunks), [unit, chunks]);
@@ -386,6 +415,26 @@ function UnitDetail({ unit, units, chunks, nav, saveProg, progress, togFav, favo
   const lvlL: Record<string, string> = { beginner: "مبتدئ", intermediate: "متوسط", advanced: "متقدم" };
   const hlKw = highlightKw ?? "";
 
+  const [selPopup, setSelPopup] = useState<{ x: number; y: number; text: string } | null>(null);
+  const [manualNote, setManualNote] = useState("");
+
+  useEffect(() => {
+    if (savedScrollY != null && savedScrollY > 0 && !hlKw) {
+      const t = setTimeout(() => window.scrollTo({ top: savedScrollY, behavior: "smooth" }), 80);
+      return () => clearTimeout(t);
+    }
+  }, [unit.id]);
+
+  useEffect(() => {
+    let rafId: number;
+    const handleScroll = () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => saveScrollPos(unit.id, window.scrollY));
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => { window.removeEventListener("scroll", handleScroll); cancelAnimationFrame(rafId); };
+  }, [unit.id]);
+
   useEffect(() => {
     if (!hlKw) return;
     const t = setTimeout(() => {
@@ -395,16 +444,56 @@ function UnitDetail({ unit, units, chunks, nav, saveProg, progress, togFav, favo
     return () => clearTimeout(t);
   }, [tab, hlKw]);
 
-  const tabs: [ProgressSection, string, () => React.ReactElement][] = [
+  useEffect(() => {
+    const handleMouseUp = () => {
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed) { setSelPopup(null); return; }
+      const text = sel.toString().trim();
+      if (text.length < 5) { setSelPopup(null); return; }
+      const range = sel.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      setSelPopup({ x: rect.left + rect.width / 2, y: rect.top - 12, text });
+    };
+    document.addEventListener("mouseup", handleMouseUp);
+    return () => document.removeEventListener("mouseup", handleMouseUp);
+  }, []);
+
+  const addSelectionNote = () => {
+    if (!selPopup) return;
+    const note: Note = { id: Date.now().toString(), text: selPopup.text, tab: tab === "notes" ? "content" : tab as ProgressSection, timestamp: Date.now(), type: "selection" };
+    saveNote(unit.id, note);
+    setSelPopup(null);
+    window.getSelection()?.removeAllRanges();
+  };
+
+  const addManualNote = () => {
+    const text = manualNote.trim();
+    if (!text) return;
+    const note: Note = { id: Date.now().toString(), text, tab: "content", timestamp: Date.now(), type: "manual" };
+    saveNote(unit.id, note);
+    setManualNote("");
+  };
+
+  const tabs: [ProgressSection | "notes", string, () => React.ReactElement][] = [
     ["objectives", "أهداف التعلم", Ic.Target],
     ["concepts", "المفاهيم الأساسية", Ic.Bulb],
     ["content", "المحتوى المنظم", Ic.Book],
     ["keyPoints", "النقاط الرئيسية", Ic.Star],
     ["applications", "التطبيقات العملية", Ic.Check],
+    ["notes", "ملاحظاتي", Ic.NoteEdit],
   ];
 
   return (
     <div>
+      {/* Selection popup */}
+      {selPopup && (
+        <div style={{ position: "fixed", top: selPopup.y - 52, left: selPopup.x - 110, zIndex: 9999, background: "#2B2A28", borderRadius: 10, padding: "8px 14px", boxShadow: "0 4px 20px rgba(43,42,40,.25)", display: "flex", alignItems: "center", gap: 10 }}>
+          <button onClick={addSelectionNote} style={{ background: "#C8341B", color: "#fff", border: "none", borderRadius: 7, padding: "5px 12px", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 6 }}>
+            <Ic.NoteEdit /> إضافة للملاحظات
+          </button>
+          <button onClick={() => setSelPopup(null)} style={{ background: "none", border: "none", color: "#9C988F", cursor: "pointer", fontSize: 16, lineHeight: 1, padding: 2 }}>✕</button>
+        </div>
+      )}
       {/* Back to search */}
       {onBackToSearch && (
         <button onClick={onBackToSearch} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#F6E7E2", border: "1px solid #E8C9C0", borderRadius: 8, padding: "6px 12px", fontSize: 13, color: "#8A2412", cursor: "pointer", fontFamily: "inherit", marginBottom: 12 }}>
@@ -450,10 +539,11 @@ function UnitDetail({ unit, units, chunks, nav, saveProg, progress, togFav, favo
       <div style={{ ...S.card, overflow: "hidden", marginBottom: 24 }}>
         <div className="la-tabs" style={{ display: "flex", overflowX: "auto", borderBottom: "1px solid " + C.border }}>
           {tabs.map(([id, lbl, Icon]) => (
-            <button key={id} onClick={() => { setTab(id); saveProg(unit.id, id); saveLastTab(unit.id, id); }}
+            <button key={id} onClick={() => { setTab(id); if (id !== "notes") { saveProg(unit.id, id as ProgressSection); saveLastTab(unit.id, id as ProgressSection); } }}
               style={{ display: "flex", alignItems: "center", gap: 6, padding: "12px 16px", fontSize: 14, fontWeight: 500, whiteSpace: "nowrap", border: "none", cursor: "pointer", fontFamily: "'Noto Naskh Arabic', 'Amiri', sans-serif", borderBottom: tab === id ? "2px solid " + C.red : "2px solid transparent", background: "transparent", color: tab === id ? C.black : C.gray, marginBottom: -1, transition: "all .15s" }}>
               <Icon /><span className="la-tab-label">{lbl}</span>
-              {p[id] && <span style={{ width: 7, height: 7, borderRadius: "50%", background: C.green, display: "inline-block" }} />}
+              {id === "notes" && notes.length > 0 && <span style={{ background: C.red, color: "#fff", fontSize: 10, fontWeight: 700, borderRadius: 999, padding: "1px 6px", fontFamily: "'Geist Mono', monospace" }}>{notes.length}</span>}
+              {id !== "notes" && p[id as ProgressSection] && <span style={{ width: 7, height: 7, borderRadius: "50%", background: C.green, display: "inline-block" }} />}
             </button>
           ))}
         </div>
@@ -491,6 +581,31 @@ function UnitDetail({ unit, units, chunks, nav, saveProg, progress, togFav, favo
               <p style={{ color: C.black, fontSize: 14, lineHeight: 1.8, margin: 0 }}><HighlightText text={a} keyword={hlKw} /></p>
             </div>
           ))}
+          {tab === "notes" && (
+            <div>
+              <p style={{ fontSize: 13, color: C.gray, marginBottom: 16, lineHeight: 1.7 }}>حدّد أي نص في الوحدة وانقر "إضافة للملاحظات"، أو أضف ملاحظة يدوية أدناه.</p>
+              <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+                <textarea value={manualNote} onChange={e => setManualNote(e.target.value)} placeholder="اكتب ملاحظة..." rows={2}
+                  style={{ flex: 1, borderRadius: 10, border: "1px solid " + C.border, padding: "10px 14px", fontSize: 14, fontFamily: "inherit", resize: "vertical", outline: "none", background: C.white, color: C.black, direction: "rtl" }} />
+                <button onClick={addManualNote} style={{ ...S.btn(C.navy, "#fff"), alignSelf: "flex-end", padding: "10px 16px" }}>إضافة</button>
+              </div>
+              {notes.length === 0 ? (
+                <div style={{ textAlign: "center", color: C.gray, fontSize: 13, padding: "32px 0" }}>لا توجد ملاحظات بعد</div>
+              ) : (
+                notes.slice().reverse().map(note => (
+                  <div key={note.id} style={{ background: note.type === "selection" ? "#F4EBD8" : C.white, border: "1px solid " + (note.type === "selection" ? "#E8D9C0" : C.border), borderRadius: 14, padding: "14px 16px", marginBottom: 10, position: "relative" }}>
+                    <div style={{ display: "flex", gap: 6, marginBottom: 8, alignItems: "center" }}>
+                      <span style={{ ...S.badge(note.type === "selection" ? "#F4EBD8" : "#E7EAF2", note.type === "selection" ? C.gold : C.navy), border: "1px solid " + (note.type === "selection" ? "#E8D9C0" : "#C5CEDE") }}>{note.type === "selection" ? "مقتبس" : "يدوي"}</span>
+                      <span style={{ fontSize: 11, color: C.gray, fontFamily: "'Geist Mono', monospace" }}>{new Date(note.timestamp).toLocaleDateString("ar-SA")}</span>
+                      <span style={{ ...S.badge("#EFEAE2", C.gray), marginRight: "auto" }}>{tabLabels[note.tab] ?? note.tab}</span>
+                    </div>
+                    <p style={{ fontSize: 14, color: C.black, lineHeight: 1.8, margin: 0 }}>{note.type === "selection" ? `"${note.text}"` : note.text}</p>
+                    <button onClick={() => deleteNote(unit.id, note.id)} style={{ position: "absolute", top: 10, left: 12, background: "none", border: "none", cursor: "pointer", color: "#9C988F", fontSize: 16, lineHeight: 1, padding: 4 }} title="حذف">✕</button>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -773,6 +888,8 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
   const [progress, setProgress] = useLocalStorage<Record<string, UnitProgress>>(`learning:${source.id}:progress`, {});
   const [favorites, setFavorites] = useLocalStorage<string[]>(`learning:${source.id}:favorites`, []);
   const [quizScores, setQuizScores] = useLocalStorage<Record<string, number>>(`learning:${source.id}:quizScores`, {});
+  const [allNotes, setAllNotes] = useLocalStorage<Record<string, Note[]>>(`learning:${source.id}:notes`, {});
+  const [scrollPositions, setScrollPositions] = useLocalStorage<Record<string, number>>(`learning:${source.id}:scrollPos`, {});
 
   const saveLastTab = useCallback((unitId: string, tab: ProgressSection) => {
     setLastTabPerUnit(prev => ({ ...prev, [unitId]: tab }));
@@ -803,6 +920,9 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
   const saveProg = useCallback((uid: string, sec: ProgressSection) => setProgress(p => ({ ...p, [uid]: { ...(p[uid] ?? {}), [sec]: true } })), []);
   const togFav = useCallback((uid: string) => setFavorites(f => f.includes(uid) ? f.filter(x => x !== uid) : [...f, uid]), []);
   const saveQuiz = useCallback((uid: string, sc: number) => setQuizScores(q => ({ ...q, [uid]: sc })), []);
+  const saveNote = useCallback((uid: string, note: Note) => setAllNotes(n => ({ ...n, [uid]: [...(n[uid] ?? []), note] })), [setAllNotes]);
+  const deleteNote = useCallback((uid: string, nid: string) => setAllNotes(n => ({ ...n, [uid]: (n[uid] ?? []).filter(x => x.id !== nid) })), [setAllNotes]);
+  const saveScrollPos = useCallback((uid: string, pos: number) => setScrollPositions(p => ({ ...p, [uid]: pos })), [setScrollPositions]);
   const getProgress = useCallback((uid: string) => {
     const p = progress[uid]; if (!p) return 0;
     return Math.round(PROGRESS_SECTIONS.filter(s => p[s]).length / PROGRESS_SECTIONS.length * 100);
@@ -912,9 +1032,9 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
 
       {/* PAGE */}
       <main style={S.wrap}>
-        {page === "home" && <Home source={source} units={units} chunks={chunks} {...sp} />}
+        {page === "home" && <Home source={source} units={units} chunks={chunks} {...sp} lastUnitId={lastUnitId} scrollPositions={scrollPositions} totalNotes={Object.values(allNotes).reduce((a, n) => a + n.length, 0)} />}
         {page === "units" && <UnitsList source={source} units={filtered} chunks={chunks} searchQ={searchQ} setSearchQ={setSearchQ} {...sp} />}
-        {page === "unit" && selUnit && <UnitDetail unit={selUnit} units={units} chunks={chunks} {...sp} lastTabPerUnit={lastTabPerUnit} saveLastTab={saveLastTab} highlightKw={searchContext?.keyword} onBackToSearch={searchContext ? () => setSearchOpen(true) : undefined} />}
+        {page === "unit" && selUnit && <UnitDetail unit={selUnit} units={units} chunks={chunks} {...sp} lastTabPerUnit={lastTabPerUnit} saveLastTab={saveLastTab} highlightKw={searchContext?.keyword} onBackToSearch={searchContext ? () => setSearchOpen(true) : undefined} notes={allNotes[selUnit.id] ?? []} saveNote={saveNote} deleteNote={deleteNote} savedScrollY={searchContext ? undefined : scrollPositions[selUnit.id]} saveScrollPos={saveScrollPos} />}
         {page === "quiz" && <Quiz units={units} quizQuestions={quiz_questions} nav={nav} quizScores={quizScores} saveQuiz={saveQuiz} />}
         {page === "quiz_direct" && selUnit && <Quiz units={units} quizQuestions={quiz_questions} nav={nav} quizScores={quizScores} saveQuiz={saveQuiz} directUnit={selUnit} />}
         {page === "progress" && <ProgressPage units={units} {...sp} />}
