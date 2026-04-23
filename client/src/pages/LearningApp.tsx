@@ -78,6 +78,34 @@ interface SearchResult {
   keyword: string;
 }
 
+interface NoteSearchResult {
+  unit: Unit;
+  note: Note;
+  excerpt: string;
+  keyword: string;
+}
+
+function searchNotes(query: string, allNotes: Record<string, Note[]>, units: Unit[]): NoteSearchResult[] {
+  const q = query.trim();
+  if (q.length < 2) return [];
+  const ql = q.toLowerCase();
+  const results: NoteSearchResult[] = [];
+  for (const [uid, notes] of Object.entries(allNotes) as [string, Note[]][]) {
+    const unit = units.find(u => u.id === uid);
+    if (!unit) continue;
+    for (const note of notes) {
+      if (!note.text.toLowerCase().includes(ql)) continue;
+      const idx = note.text.toLowerCase().indexOf(ql);
+      const start = Math.max(0, idx - 55);
+      const end = Math.min(note.text.length, idx + q.length + 80);
+      const excerpt = (start > 0 ? "…" : "") + note.text.slice(start, end) + (end < note.text.length ? "…" : "");
+      results.push({ unit, note, excerpt, keyword: q });
+      if (results.length >= 10) return results;
+    }
+  }
+  return results;
+}
+
 function searchContent(query: string, units: Unit[], chunks: Chunk[]): SearchResult[] {
   const q = query.trim();
   if (q.length < 2) return [];
@@ -396,8 +424,8 @@ function UnitDetail({ unit, units, chunks, nav, saveProg, progress, togFav, favo
   favorites: string[];
   highlightKw?: string;
   onBackToSearch?: () => void;
-  lastTabPerUnit: Record<string, ProgressSection>;
-  saveLastTab: (unitId: string, tab: ProgressSection) => void;
+  lastTabPerUnit: Record<string, ProgressSection | "notes">;
+  saveLastTab: (unitId: string, tab: ProgressSection | "notes") => void;
   notes: Note[];
   saveNote: (unitId: string, note: Note) => void;
   deleteNote: (unitId: string, noteId: string) => void;
@@ -599,7 +627,7 @@ function UnitDetail({ unit, units, chunks, nav, saveProg, progress, togFav, favo
                       <span style={{ fontSize: 11, color: C.gray, fontFamily: "'Geist Mono', monospace" }}>{new Date(note.timestamp).toLocaleDateString("ar-SA")}</span>
                       <span style={{ ...S.badge("#EFEAE2", C.gray), marginRight: "auto" }}>{tabLabels[note.tab] ?? note.tab}</span>
                     </div>
-                    <p style={{ fontSize: 14, color: C.black, lineHeight: 1.8, margin: 0 }}>{note.type === "selection" ? `"${note.text}"` : note.text}</p>
+                    <p style={{ fontSize: 14, color: C.black, lineHeight: 1.8, margin: 0 }}>{note.type === "selection" ? <><span style={{ color: C.gray }}>"</span><HighlightText text={note.text} keyword={hlKw ?? ""} /><span style={{ color: C.gray }}>"</span></> : <HighlightText text={note.text} keyword={hlKw ?? ""} />}</p>
                     <button onClick={() => deleteNote(unit.id, note.id)} style={{ position: "absolute", top: 10, left: 12, background: "none", border: "none", cursor: "pointer", color: "#9C988F", fontSize: 16, lineHeight: 1, padding: 4 }} title="حذف">✕</button>
                   </div>
                 ))
@@ -838,6 +866,63 @@ function ProgressPage({ units, doneCount, getProgress, quizScores, favorites, to
 }
 
 /* ═══════════════════════════════════════════════════════
+   ALL NOTES PAGE
+   ═══════════════════════════════════════════════════════ */
+function AllNotesPage({ allNotes, units, nav, deleteNote }: {
+  allNotes: Record<string, Note[]>;
+  units: Unit[];
+  nav: (page: string, unit?: Unit) => void;
+  deleteNote: (unitId: string, noteId: string) => void;
+}) {
+  const entries = (Object.entries(allNotes) as [string, Note[]][])
+    .map(([uid, notes]) => ({ unit: units.find(u => u.id === uid), notes }))
+    .filter((e): e is { unit: Unit; notes: Note[] } => !!e.unit && e.notes.length > 0);
+
+  const total = entries.reduce((a, e) => a + e.notes.length, 0);
+
+  return (
+    <div>
+      <div className="la-hero" style={S.heroGrad}>
+        <h1 style={{ color: "#2B2A28", fontSize: 22, fontWeight: 700, fontFamily: "'Source Serif 4', Georgia, serif", marginBottom: 6 }}>ملاحظاتي</h1>
+        <p style={{ color: "#6B6760", fontSize: 13 }}>{total > 0 ? `${total} ملاحظة في ${entries.length} وحدة` : "ملاحظاتك الشخصية من جميع الوحدات"}</p>
+      </div>
+      {entries.length === 0 ? (
+        <div style={{ textAlign: "center", color: C.gray, fontSize: 14, padding: "64px 0", lineHeight: 2 }}>
+          <div style={{ fontSize: 40, marginBottom: 16 }}>📝</div>
+          لا توجد ملاحظات بعد<br />
+          <span style={{ fontSize: 13 }}>حدّد أي نص في وحدة وانقر "إضافة للملاحظات"، أو أضف ملاحظة يدوية</span>
+        </div>
+      ) : (
+        entries.map(({ unit, notes }) => (
+          <div key={unit.id} style={{ ...S.card, padding: 20, marginBottom: 16 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+              <div>
+                <span style={{ ...S.badge(C.red, "#fff"), marginLeft: 8 }}>{(unit.meta as Record<string, unknown>)?.original_module_id as string ?? unit.order}</span>
+                <span style={{ fontWeight: 700, fontSize: 14, color: C.black }}>{unit.title}</span>
+              </div>
+              <button onClick={() => nav("unit", unit)} style={{ ...S.btn("#EFEAE2", C.navy), border: "1px solid " + C.border, fontSize: 12, padding: "6px 12px" }}>
+                فتح الوحدة <Ic.ArrowL />
+              </button>
+            </div>
+            {notes.slice().reverse().map(note => (
+              <div key={note.id} style={{ background: note.type === "selection" ? "#F4EBD8" : C.white, border: "1px solid " + (note.type === "selection" ? "#E8D9C0" : C.border), borderRadius: 14, padding: "14px 16px", marginBottom: 10, position: "relative" }}>
+                <div style={{ display: "flex", gap: 6, marginBottom: 8, alignItems: "center" }}>
+                  <span style={{ ...S.badge(note.type === "selection" ? "#F4EBD8" : "#E7EAF2", note.type === "selection" ? C.gold : C.navy), border: "1px solid " + (note.type === "selection" ? "#E8D9C0" : "#C5CEDE") }}>{note.type === "selection" ? "مقتبس" : "يدوي"}</span>
+                  <span style={{ fontSize: 11, color: C.gray, fontFamily: "'Geist Mono', monospace" }}>{new Date(note.timestamp).toLocaleDateString("ar-SA")}</span>
+                  <span style={{ ...S.badge("#EFEAE2", C.gray), marginRight: "auto" }}>{tabLabels[note.tab] ?? note.tab}</span>
+                </div>
+                <p style={{ fontSize: 14, color: C.black, lineHeight: 1.8, margin: 0 }}>{note.type === "selection" ? `"${note.text}"` : note.text}</p>
+                <button onClick={() => deleteNote(unit.id, note.id)} style={{ position: "absolute", top: 10, left: 12, background: "none", border: "none", cursor: "pointer", color: "#9C988F", fontSize: 16, lineHeight: 1, padding: 4 }} title="حذف">✕</button>
+              </div>
+            ))}
+          </div>
+        ))
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
    HOOK — état persisté dans localStorage
    ═══════════════════════════════════════════════════════ */
 function useLocalStorage<T>(key: string, initial: T): [T, React.Dispatch<React.SetStateAction<T>>] {
@@ -880,11 +965,11 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
       return id ? (units.find(u => u.id === id) ?? null) : null;
     } catch { return null; }
   });
-  const [lastTabPerUnit, setLastTabPerUnit] = useLocalStorage<Record<string, ProgressSection>>(`learning:${source.id}:lastTab`, {});
+  const [lastTabPerUnit, setLastTabPerUnit] = useLocalStorage<Record<string, ProgressSection | "notes">>(`learning:${source.id}:lastTab`, {});
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchQ, setSearchQ] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
-  const [searchContext, setSearchContext] = useState<{ keyword: string; tab: ProgressSection } | null>(null);
+  const [searchContext, setSearchContext] = useState<{ keyword: string; tab: ProgressSection | "notes" } | null>(null);
   const [progress, setProgress] = useLocalStorage<Record<string, UnitProgress>>(`learning:${source.id}:progress`, {});
   const [favorites, setFavorites] = useLocalStorage<string[]>(`learning:${source.id}:favorites`, []);
   const [quizScores, setQuizScores] = useLocalStorage<Record<string, number>>(`learning:${source.id}:quizScores`, {});
@@ -914,7 +999,7 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const saveLastTab = useCallback((unitId: string, tab: ProgressSection) => {
+  const saveLastTab = useCallback((unitId: string, tab: ProgressSection | "notes") => {
     setLastTabPerUnit(prev => ({ ...prev, [unitId]: tab }));
   }, [setLastTabPerUnit]);
 
@@ -924,7 +1009,7 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
     setMenuOpen(false); setSearchOpen(false);
   }, [setPage, setLastUnitId]);
 
-  const navFromSearch = useCallback((u: Unit, tab: ProgressSection, keyword: string) => {
+  const navFromSearch = useCallback((u: Unit, tab: ProgressSection | "notes", keyword: string) => {
     setPage("unit");
     setSelUnit(u);
     setLastUnitId(u.id);
@@ -955,6 +1040,7 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
   const totalConcepts = useMemo(() => chunks.filter(c => c.type === "definition").length, [chunks]);
 
   const searchResults = useMemo(() => searchContent(searchQ, units, chunks), [searchQ, units, chunks]);
+  const noteSearchResults = useMemo(() => searchNotes(searchQ, allNotes, units), [searchQ, allNotes, units]);
 
   const filtered = useMemo(() => {
     if (!searchQ.trim()) return units;
@@ -963,11 +1049,14 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
   }, [units, searchQ]);
 
   const sp = { nav, progress, saveProg, favorites, togFav, quizScores, saveQuiz, getProgress, doneCount, totalConcepts };
+  const totalNotes = useMemo(() => Object.values(allNotes).reduce((a, n) => a + n.length, 0), [allNotes]);
+
   const navItems: [string, string, () => React.ReactElement][] = [
     ["home", "الرئيسية", Ic.Home],
     ["units", "الوحدات", Ic.Book],
     ["quiz", "الاختبارات", Ic.Quiz],
     ["progress", "التقدم", Ic.Chart],
+    ["notes", "ملاحظاتي", Ic.NoteEdit],
   ];
 
   return (
@@ -986,6 +1075,7 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
             {navItems.map(([id, lbl, Icon]) => (
               <button key={id} onClick={() => nav(id)} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 7, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 500, background: page === id ? "#2B2A28" : "transparent", color: page === id ? "#FBFAF7" : "#6B6760", transition: "all .15s" }}>
                 <Icon /><span>{lbl}</span>
+                {id === "notes" && totalNotes > 0 && <span style={{ background: C.red, color: "#fff", fontSize: 10, fontWeight: 700, borderRadius: 999, padding: "1px 6px", fontFamily: "'Geist Mono', monospace", lineHeight: 1.4 }}>{totalNotes}</span>}
               </button>
             ))}
           </div>
@@ -1011,11 +1101,11 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
               {/* Results */}
               {searchQ.trim().length >= 2 && (
                 <div style={{ maxHeight: 400, overflowY: "auto", display: "flex", flexDirection: "column", gap: 6, paddingBottom: 4 }}>
-                  {searchResults.length === 0 ? (
+                  {searchResults.length === 0 && noteSearchResults.length === 0 ? (
                     <div style={{ textAlign: "center", color: "#9C988F", fontSize: 13, padding: "20px 0", fontFamily: "'Geist', sans-serif" }}>لا توجد نتائج لـ «{searchQ}»</div>
                   ) : (
                     <>
-                      <div style={{ fontSize: 11, color: "#9C988F", fontFamily: "'Geist', sans-serif", marginBottom: 4, paddingRight: 2 }}>{searchResults.length} نتيجة</div>
+                      <div style={{ fontSize: 11, color: "#9C988F", fontFamily: "'Geist', sans-serif", marginBottom: 4, paddingRight: 2 }}>{searchResults.length + noteSearchResults.length} نتيجة</div>
                       {searchResults.map((r, i) => {
                         const origId = (r.unit.meta as Record<string, unknown>)?.original_module_id as string ?? String(r.unit.order).padStart(3, "0");
                         return (
@@ -1035,6 +1125,31 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
                           </div>
                         );
                       })}
+                      {noteSearchResults.length > 0 && (
+                        <>
+                          {searchResults.length > 0 && <div style={{ height: 1, background: "#E6E1D7", margin: "4px 0" }} />}
+                          <div style={{ fontSize: 11, color: "#9C988F", fontFamily: "'Geist', sans-serif", paddingRight: 2 }}>ملاحظاتي</div>
+                          {noteSearchResults.map((r, i) => {
+                            const origId = (r.unit.meta as Record<string, unknown>)?.original_module_id as string ?? String(r.unit.order).padStart(3, "0");
+                            return (
+                              <div key={i}
+                                onClick={() => navFromSearch(r.unit, "notes", r.keyword)}
+                                style={{ background: "#F4EBD8", border: "1px solid #E8D9C0", borderRadius: 12, padding: "12px 14px", cursor: "pointer", transition: "border-color .15s" }}
+                                onMouseEnter={e => (e.currentTarget.style.borderColor = "#C8A97A")}
+                                onMouseLeave={e => (e.currentTarget.style.borderColor = "#E8D9C0")}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
+                                  <span style={S.badge(C.red, "#fff")}>{origId}</span>
+                                  <span style={{ fontSize: 13, fontWeight: 600, color: "#2B2A28", flex: 1 }}>{r.unit.title}</span>
+                                  <span style={{ fontSize: 11, color: C.gold, background: "#EDE0CC", borderRadius: 6, padding: "2px 7px", fontFamily: "'Geist', sans-serif" }}>{r.note.type === "selection" ? "مقتبس" : "يدوي"}</span>
+                                </div>
+                                <p style={{ fontSize: 13, color: "#6B6760", lineHeight: 1.7, margin: 0, direction: "rtl" }}>
+                                  <HighlightText text={r.excerpt} keyword={r.keyword} />
+                                </p>
+                              </div>
+                            );
+                          })}
+                        </>
+                      )}
                     </>
                   )}
                 </div>
@@ -1047,6 +1162,7 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
             {navItems.map(([id, lbl, Icon]) => (
               <button key={id} onClick={() => nav(id)} style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 14px", borderRadius: 8, border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 500, background: page === id ? "#2B2A28" : "transparent", color: page === id ? "#FBFAF7" : "#6B6760", marginBottom: 4, textAlign: "right" }}>
                 <Icon />{lbl}
+                {id === "notes" && totalNotes > 0 && <span style={{ background: C.red, color: "#fff", fontSize: 10, fontWeight: 700, borderRadius: 999, padding: "1px 6px", fontFamily: "'Geist Mono', monospace", marginRight: "auto" }}>{totalNotes}</span>}
               </button>
             ))}
           </div>
@@ -1055,12 +1171,13 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
 
       {/* PAGE */}
       <main style={S.wrap}>
-        {page === "home" && <Home source={source} units={units} chunks={chunks} {...sp} lastUnitId={lastUnitId} scrollPositions={scrollPositions} totalNotes={Object.values(allNotes).reduce((a, n) => a + n.length, 0)} />}
+        {page === "home" && <Home source={source} units={units} chunks={chunks} {...sp} lastUnitId={lastUnitId} scrollPositions={scrollPositions} totalNotes={totalNotes} />}
         {page === "units" && <UnitsList source={source} units={filtered} chunks={chunks} searchQ={searchQ} setSearchQ={setSearchQ} {...sp} />}
         {page === "unit" && selUnit && <UnitDetail unit={selUnit} units={units} chunks={chunks} {...sp} lastTabPerUnit={lastTabPerUnit} saveLastTab={saveLastTab} highlightKw={searchContext?.keyword} onBackToSearch={searchContext ? () => setSearchOpen(true) : undefined} notes={allNotes[selUnit.id] ?? []} saveNote={saveNote} deleteNote={deleteNote} savedScrollY={searchContext ? undefined : scrollPositions[selUnit.id]} saveScrollPos={saveScrollPos} />}
         {page === "quiz" && <Quiz units={units} quizQuestions={quiz_questions} nav={nav} quizScores={quizScores} saveQuiz={saveQuiz} />}
         {page === "quiz_direct" && selUnit && <Quiz units={units} quizQuestions={quiz_questions} nav={nav} quizScores={quizScores} saveQuiz={saveQuiz} directUnit={selUnit} />}
         {page === "progress" && <ProgressPage units={units} {...sp} />}
+        {page === "notes" && <AllNotesPage allNotes={allNotes} units={units} nav={nav} deleteNote={deleteNote} />}
       </main>
 
       {/* FOOTER */}
