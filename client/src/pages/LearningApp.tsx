@@ -891,6 +891,29 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
   const [allNotes, setAllNotes] = useLocalStorage<Record<string, Note[]>>(`learning:${source.id}:notes`, {});
   const [scrollPositions, setScrollPositions] = useLocalStorage<Record<string, number>>(`learning:${source.id}:scrollPos`, {});
 
+  // Deep-link: ?majlis=3 (ou 003) ouvre directement le majlis correspondant;
+  // ?kw=... pré-remplit la recherche interne pour aller jusqu'au mot-clé.
+  // Utilisé par Rafiq (bouton المصدر) — paramètre absent/invalide: comportement inchangé.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const majlis = params.get("majlis");
+    const kw = params.get("kw");
+    if (majlis) {
+      const num = majlis.replace(/\D/g, "").padStart(3, "0");
+      const unit = units.find(u => u.id.endsWith(`unit-${num}`));
+      if (unit) {
+        setPage("unit");
+        setSelUnit(unit);
+        setLastUnitId(unit.id);
+      }
+    }
+    if (kw) {
+      setSearchQ(kw);
+      setSearchOpen(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const saveLastTab = useCallback((unitId: string, tab: ProgressSection) => {
     setLastTabPerUnit(prev => ({ ...prev, [unitId]: tab }));
   }, [setLastTabPerUnit]);
