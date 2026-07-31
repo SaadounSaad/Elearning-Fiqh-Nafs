@@ -224,6 +224,17 @@ const PROGRESS_SECTIONS = ["objectives", "concepts", "content", "keyPoints", "ap
 type ProgressSection = typeof PROGRESS_SECTIONS[number];
 type UnitProgress = Partial<Record<ProgressSection, boolean>>;
 
+interface HistoryEntry { unitId: string; timestamp: number; }
+
+function timeAgo(ts: number): string {
+  const d = Date.now() - ts;
+  if (d < 60000) return "الآن";
+  if (d < 3600000) return `منذ ${Math.floor(d / 60000)} د`;
+  if (d < 86400000) return `منذ ${Math.floor(d / 3600000)} س`;
+  if (d < 172800000) return "أمس";
+  return `منذ ${Math.floor(d / 86400000)} أيام`;
+}
+
 interface Note {
   id: string;
   text: string;
@@ -290,7 +301,7 @@ function UnitCard({ unit, chunks, nav, gp, togFav, favs }: {
 /* ═══════════════════════════════════════════════════════
    HOME PAGE
    ═══════════════════════════════════════════════════════ */
-function Home({ source, units, chunks, nav, doneCount, totalConcepts, getProgress, favorites, togFav, lastUnitId, scrollPositions, totalNotes }: {
+function Home({ source, units, chunks, nav, doneCount, totalConcepts, getProgress, favorites, togFav, readingHistory, scrollPositions, totalNotes }: {
   source: SourceFile["source"];
   units: Unit[];
   chunks: Chunk[];
@@ -300,22 +311,26 @@ function Home({ source, units, chunks, nav, doneCount, totalConcepts, getProgres
   getProgress: (id: string) => number;
   favorites: string[];
   togFav: (id: string) => void;
-  lastUnitId: string | null;
+  readingHistory: HistoryEntry[];
   scrollPositions: Record<string, number>;
   totalNotes: number;
 }) {
   const inProg = units.find(u => { const p = getProgress(u.id); return p > 0 && p < 100; });
-  const lastUnit = lastUnitId ? units.find(u => u.id === lastUnitId) : null;
-  const lastScrollY = lastUnitId ? (scrollPositions[lastUnitId] ?? 0) : 0;
+  const historyUnits = readingHistory
+    .map(e => ({ entry: e, unit: units.find(u => u.id === e.unitId) }))
+    .filter((x): x is { entry: HistoryEntry; unit: Unit } => !!x.unit)
+    .slice(0, 5);
+  const lastEntry = historyUnits[0];
   return (
     <div>
-      {lastUnit && lastScrollY > 200 && (
+      {lastEntry && (
         <div style={{ ...S.card, padding: "16px 20px", marginBottom: 20, display: "flex", alignItems: "center", gap: 14, background: "#FBFAF7", border: "1px solid #E6E1D7", borderRight: "4px solid #C8341B" }}>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontSize: 11, color: C.gray, margin: "0 0 3px", fontFamily: "'Geist', sans-serif" }}>متابعة القراءة</p>
-            <p style={{ fontSize: 14, fontWeight: 600, color: C.black, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{lastUnit.title}</p>
+            <p style={{ fontSize: 11, color: C.gray, margin: "0 0 3px", fontFamily: "'Geist', sans-serif" }}>متابعة القراءة · {timeAgo(lastEntry.entry.timestamp)}</p>
+            <p style={{ fontSize: 14, fontWeight: 600, color: C.black, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{lastEntry.unit.title}</p>
+            {scrollPositions[lastEntry.unit.id] > 0 && <p style={{ fontSize: 11, color: C.gray, margin: "3px 0 0", fontFamily: "'Geist Mono', monospace" }}>الصفحة {Math.round(scrollPositions[lastEntry.unit.id] / 800) + 1}</p>}
           </div>
-          <button onClick={() => nav("unit", lastUnit)} style={{ ...S.btn(C.red, "#fff"), flexShrink: 0, padding: "8px 16px", fontSize: 13 }}>استأنف <Ic.ArrowL /></button>
+          <button onClick={() => nav("unit", lastEntry.unit)} style={{ ...S.btn(C.red, "#fff"), flexShrink: 0, padding: "8px 16px", fontSize: 13 }}>استأنف <Ic.ArrowL /></button>
         </div>
       )}
       <div className="la-hero" style={S.heroGrad}>
@@ -339,6 +354,29 @@ function Home({ source, units, chunks, nav, doneCount, totalConcepts, getProgres
           </div>
         ))}
       </div>
+      {historyUnits.length > 1 && (
+        <div style={{ marginBottom: 28 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 700, color: C.black, margin: "0 0 14px" }}>سجل القراءة</h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {historyUnits.map(({ entry, unit }, i) => {
+              const origId = (unit.meta as Record<string, unknown>)?.original_module_id as string ?? String(unit.order).padStart(3, "0");
+              const prog = getProgress(unit.id);
+              return (
+                <div key={unit.id} onClick={() => nav("unit", unit)}
+                  style={{ ...S.card, padding: "12px 16px", display: "flex", alignItems: "center", gap: 12, cursor: "pointer", opacity: i === 0 ? 1 : 0.8 }}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = "#9C988F")}
+                  onMouseLeave={e => (e.currentTarget.style.borderColor = C.border)}>
+                  <span style={S.badge(i === 0 ? C.red : "#EFEAE2", i === 0 ? "#fff" : C.gray)}>{origId}</span>
+                  <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: C.black, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{unit.title}</span>
+                  {prog > 0 && <span style={{ fontSize: 11, color: prog === 100 ? C.green : C.gray, fontFamily: "'Geist Mono', monospace" }}>{prog}%</span>}
+                  <span style={{ fontSize: 11, color: C.gray, fontFamily: "'Geist', sans-serif", flexShrink: 0 }}>{timeAgo(entry.timestamp)}</span>
+                  <Ic.ArrowL />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <h2 style={{ fontSize: 18, fontWeight: 700, color: C.black, margin: 0 }}>آخر الوحدات</h2>
         <button onClick={() => nav("units")} style={{ background: "none", border: "none", color: C.red, fontWeight: 600, fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", gap: 4 }}>عرض الكل <Ic.ArrowR /></button>
@@ -951,9 +989,10 @@ function useLocalStorage<T>(key: string, initial: T): [T, React.Dispatch<React.S
    ═══════════════════════════════════════════════════════ */
 interface LearningAppProps {
   sourceData: SourceFile;
+  onBack?: () => void;
 }
 
-export default function LearningApp({ sourceData }: LearningAppProps) {
+export default function LearningApp({ sourceData, onBack }: LearningAppProps) {
   const { source, units, chunks, quiz_questions } = sourceData;
 
   const [page, setPage] = useLocalStorage(`learning:${source.id}:lastPage`, "home");
@@ -975,6 +1014,7 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
   const [quizScores, setQuizScores] = useLocalStorage<Record<string, number>>(`learning:${source.id}:quizScores`, {});
   const [allNotes, setAllNotes] = useLocalStorage<Record<string, Note[]>>(`learning:${source.id}:notes`, {});
   const [scrollPositions, setScrollPositions] = useLocalStorage<Record<string, number>>(`learning:${source.id}:scrollPos`, {});
+  const [readingHistory, setReadingHistory] = useLocalStorage<HistoryEntry[]>(`learning:${source.id}:history`, []);
 
   // Deep-link: ?majlis=3 (ou 003) ouvre directement le majlis correspondant;
   // ?kw=... pré-remplit la recherche interne pour aller jusqu'au mot-clé.
@@ -1005,9 +1045,12 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
 
   const nav = useCallback((p: string, u?: Unit) => {
     setPage(p);
-    if (u !== undefined) { setSelUnit(u); setLastUnitId(u.id); }
+    if (u !== undefined) {
+      setSelUnit(u); setLastUnitId(u.id);
+      if (p === "unit") setReadingHistory(h => [{ unitId: u.id, timestamp: Date.now() }, ...h.filter(e => e.unitId !== u.id)].slice(0, 10));
+    }
     setMenuOpen(false); setSearchOpen(false);
-  }, [setPage, setLastUnitId]);
+  }, [setPage, setLastUnitId, setReadingHistory]);
 
   const navFromSearch = useCallback((u: Unit, tab: ProgressSection | "notes", keyword: string) => {
     setPage("unit");
@@ -1015,9 +1058,10 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
     setLastUnitId(u.id);
     setLastTabPerUnit(prev => ({ ...prev, [u.id]: tab }));
     setSearchContext({ keyword, tab });
+    setReadingHistory(h => [{ unitId: u.id, timestamp: Date.now() }, ...h.filter(e => e.unitId !== u.id)].slice(0, 10));
     setMenuOpen(false);
     setSearchOpen(false);
-  }, [setPage, setLastUnitId, setLastTabPerUnit]);
+  }, [setPage, setLastUnitId, setLastTabPerUnit, setReadingHistory]);
 
   const clearSearch = useCallback(() => {
     setSearchQ("");
@@ -1065,6 +1109,11 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
       <nav style={{ position: "sticky", top: 0, zIndex: 50, background: "#FBFAF7", borderBottom: "1px solid #E6E1D7" }}>
         <div style={{ height: 2, background: "#C8341B" }} />
         <div style={{ maxWidth: 1240, margin: "0 auto", padding: "0 20px", display: "flex", alignItems: "center", gap: 20, height: 58 }}>
+          {onBack && (
+            <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 5, background: "none", border: "none", cursor: "pointer", color: "#6B6760", fontSize: 13, fontFamily: "inherit", padding: 0, flexShrink: 0 }}>
+              <Ic.ArrowR /> المصادر
+            </button>
+          )}
           <button onClick={() => nav("home")} style={{ display: "flex", alignItems: "center", gap: 10, background: "none", border: "none", cursor: "pointer", padding: 0, flexShrink: 0 }}>
             <div style={{ width: 30, height: 30, borderRadius: 8, background: "#C8341B", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <span style={{ color: "#fff", fontWeight: 700, fontSize: 16, fontFamily: "'Source Serif 4', Georgia, serif" }}>{source.title.charAt(0)}</span>
@@ -1171,7 +1220,7 @@ export default function LearningApp({ sourceData }: LearningAppProps) {
 
       {/* PAGE */}
       <main style={S.wrap}>
-        {page === "home" && <Home source={source} units={units} chunks={chunks} {...sp} lastUnitId={lastUnitId} scrollPositions={scrollPositions} totalNotes={totalNotes} />}
+        {page === "home" && <Home source={source} units={units} chunks={chunks} {...sp} readingHistory={readingHistory} scrollPositions={scrollPositions} totalNotes={totalNotes} />}
         {page === "units" && <UnitsList source={source} units={filtered} chunks={chunks} searchQ={searchQ} setSearchQ={setSearchQ} {...sp} />}
         {page === "unit" && selUnit && <UnitDetail unit={selUnit} units={units} chunks={chunks} {...sp} lastTabPerUnit={lastTabPerUnit} saveLastTab={saveLastTab} highlightKw={searchContext?.keyword} onBackToSearch={searchContext ? () => setSearchOpen(true) : undefined} notes={allNotes[selUnit.id] ?? []} saveNote={saveNote} deleteNote={deleteNote} savedScrollY={searchContext ? undefined : scrollPositions[selUnit.id]} saveScrollPos={saveScrollPos} />}
         {page === "quiz" && <Quiz units={units} quizQuestions={quiz_questions} nav={nav} quizScores={quizScores} saveQuiz={saveQuiz} />}

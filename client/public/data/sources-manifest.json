@@ -1,0 +1,13 @@
+[
+  {
+    "id": "fiqh-nafs-hashimi",
+    "title": "مجالس فقه النفس",
+    "author": "د. عمر عبد الكافي الهاشمي",
+    "description": "سلسلة من 164 مجلساً في تزكية النفس",
+    "source_type": "video_series",
+    "language": "ar",
+    "domain": "تزكية النفس",
+    "unit_count": 164,
+    "data_url": "/data/fiqh-nafs-hashimi.json"
+  }
+]

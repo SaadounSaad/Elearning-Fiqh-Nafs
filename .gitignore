@@ -110,3 +110,12 @@ temp/
 
 # Manus version file (auto-generated, not part of source)
 client/public/__manus__/version.json
+
+# --- outillage Claude/Ruflo : reinstallable, pas du projet
+.claude-flow/
+.swarm/
+.agents/
+.superpowers/
+.gstack/
+ruvector.db
+agentdb.rvf
